@@ -1,0 +1,62 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://paymsg.dev/schemas/iban_formats.schema.json",
+  "title": "IBAN Format Definitions",
+  "description": "Per-country IBAN format specifications including length, BBAN format patterns, bank identifier positions, and valid examples for validation",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "country_code",
+      "length",
+      "bban_format",
+      "example",
+      "bank_id_position"
+    ],
+    "properties": {
+      "country_code": {
+        "type": "string",
+        "description": "ISO 3166-1 alpha-2 country code",
+        "pattern": "^[A-Z]{2}$"
+      },
+      "length": {
+        "type": "integer",
+        "description": "Total IBAN length including country code and check digits",
+        "minimum": 15,
+        "maximum": 34
+      },
+      "bban_format": {
+        "type": "string",
+        "description": "Regular expression pattern for the BBAN portion (after country code and check digits). Use: \\d for digits, [A-Z] for uppercase letters, [A-Z0-9] for alphanumeric"
+      },
+      "example": {
+        "type": "string",
+        "description": "A valid example IBAN that must pass Mod-97 check digit validation",
+        "pattern": "^[A-Z]{2}[0-9]{2}[A-Z0-9]+$"
+      },
+      "bank_id_position": {
+        "type": "object",
+        "description": "Position of the bank identifier within the BBAN (0-indexed)",
+        "required": ["start", "end"],
+        "properties": {
+          "start": {
+            "type": "integer",
+            "description": "Start index of bank identifier in BBAN",
+            "minimum": 0
+          },
+          "end": {
+            "type": "integer",
+            "description": "End index (exclusive) of bank identifier in BBAN",
+            "minimum": 1
+          }
+        }
+      },
+      "country_name": {
+        "type": "string",
+        "description": "Optional: Full country name for documentation"
+      }
+    },
+    "additionalProperties": false
+  },
+  "minItems": 1
+}
