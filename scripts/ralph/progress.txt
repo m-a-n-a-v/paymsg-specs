@@ -117,3 +117,86 @@ Files changed:
 - Always validate example IBANs with Mod-97 to ensure correctness of check digits
 ---
 
+## 2026-02-10 - SPEC-005
+- Implemented BIC/SWIFT code structure reference and validation specification
+- Created reference/bic_spec.json with comprehensive BIC documentation
+- Documented complete BIC structure: institution code (4 alpha), country code (2 alpha ISO 3166-1), location code (2 alphanum), branch code (3 alphanum, optional)
+- Included character set definitions for each position with validation rules
+- Provided 26 valid example BICs from major global banks:
+  - German banks: DEUTDEFF (Deutsche Bank), COBADEFF (Commerzbank)
+  - French banks: BNPAFRPP (BNP Paribas)
+  - US banks: CHASUS33 (JPMorgan Chase), BOFAUS3N (Bank of America), CITIUS33 (Citibank), WFBIUS6S (Wells Fargo), PNBPUS3N (PNC)
+  - UK banks: HSBCGB2L (HSBC), BARCGB22 (Barclays)
+  - Swiss banks: UBSWCHZH (UBS), CRESCHZZ (Credit Suisse)
+  - Asian banks: SMBCJPJT (Sumitomo Mitsui), BKCHCNBJ (Bank of China), ICBKCNBJ (ICBC)
+  - Australian banks: NATAAU33 (NAB), ANZBAU3M (ANZ)
+  - And others including RBOSGGSX (RBS Singapore)
+- Provided 11 invalid example BICs with detailed explanations:
+  - Length errors (too short, invalid 9/10 character formats)
+  - Case errors (lowercase not allowed)
+  - Format errors (digits in institution/country codes, invalid country codes)
+  - Special character errors (spaces, hyphens, underscores)
+- Documented XXX branch convention (head office explicit marker)
+- Documented 8 vs 11 character rules and equivalence (BIC8 ≡ BIC11 with XXX)
+- Documented special cases: test BICs (0 in position 8), passive participants
+- Included validation rules, common mistakes, usage notes, and ISO 9362 reference
+- Validated JSON structure with jq
+
+Files changed:
+- reference/bic_spec.json (new, 480 lines)
+- scripts/ralph/prd.json (updated SPEC-005 passes: true)
+
+**Learnings for future iterations:**
+- BIC format is strictly regulated: only A-Z for institution (positions 1-4), A-Z for country (positions 5-6), A-Z0-9 for location (positions 7-8) and optional branch (positions 9-11)
+- BIC8 and BIC11 both valid but semantically different: BIC8 refers to head office, BIC11 can specify branches
+- BIC8 and BIC11 with XXX branch are functionally equivalent and should be treated as the same institution/location
+- Test BICs use '0' in position 8 of location code - these should be flagged in production systems
+- BIC is institution identifier, not account identifier (that's IBAN's role)
+- Location code often encodes city information but format is institution-specific
+- Major international banks often have multiple BICs for different locations/business units (e.g., BOFAUS3N vs BOFAUS6S)
+- Always validate country code against ISO 3166-1 alpha-2 reference data
+- BIC validation is simpler than IBAN but still critical for payment routing
+- Real-world BICs from major banks provide good examples: DEUTDEFF, BNPAFRPP, CHASUS33, HSBCGB2L, etc.
+---
+
+## 2026-02-10 - SPEC-006
+- Implemented MT103 (Single Customer Credit Transfer) message format specification
+- Created mt-specs/mt103.schema.json defining JSON Schema for all MT message specifications
+  - Schema validates message_type, name, description, blocks (1-5), fields array, and field_ordering rules
+  - Field schema includes tag, name, status (M/O), options array, max_length, format_pattern, description, and subfields
+  - Subfields schema for composite fields with name, position, format, and description
+  - Field ordering includes mandatory_sequence and optional_sequences with positioning constraints
+- Created mt-specs/mt103.json with comprehensive MT103 specification (852 lines total for both files)
+  - Documented all 5 MT message blocks with format patterns and descriptions
+  - Specified 46 fields covering all MT103 field tags and options:
+    - Mandatory fields: 20 (Transaction Reference), 23B (Bank Operation Code), 32A (Value Date/Currency/Amount), 71A (Details of Charges)
+    - Ordering customer options: 50A (Account/BIC), 50F (Structured), 50K (Name & Address)
+    - Institution fields: 51A (Sending), 52A/D (Ordering), 53A/B/D (Sender's Correspondent), 54A/B/D (Receiver's Correspondent), 55A/B/D (Third Reimbursement), 56A/C/D (Intermediary), 57A/B/C/D (Account With)
+    - Beneficiary options: 59 (Name & Address), 59A (Account/BIC), 59F (Structured)
+    - Optional fields: 13C (Time Indication), 23E (Instruction Code), 26T (Transaction Type), 33B (Instructed Amount), 36 (Exchange Rate), 70 (Remittance Info), 71F (Sender's Charges), 71G (Receiver's Charges), 72 (Sender to Receiver Info), 77B (Regulatory Reporting)
+  - Each field includes detailed format patterns (regex), max length, SWIFT character set requirements, and subfield breakdowns for composite fields
+  - Documented field ordering rules: mandatory sequence and optional field positioning constraints
+  - All format patterns follow SWIFT standards: character sets X/Y/Z, CRLF line endings, tag-value notation
+- Validated all JSON files with jq (both pass validation)
+
+Files changed:
+- mt-specs/mt103.json (new, 734 lines)
+- mt-specs/mt103.schema.json (new, 118 lines)
+- scripts/ralph/prd.json (updated SPEC-006 passes: true)
+
+**Learnings for future iterations:**
+- MT103 field structure: tag (2 digits + optional letter), multiple options (A/B/C/D/F/K) for party identification fields
+- Party identification fields follow pattern: A=BIC, B=Location, C=Party Identifier only, D=Name&Address, F=Structured
+- Composite fields like 32A break down into subfields: date (YYMMDD) + currency (3!a) + amount (15d with comma decimal)
+- SWIFT format notation: 4!a = exactly 4 alpha, 2!c = exactly 2 alphanumeric, 15d = up to 15 digits with decimal, 4*35x = up to 4 lines of 35 chars
+- Field 50 (Ordering Customer) must have exactly one option present (A, F, or K)
+- Field 59 (Beneficiary) must have exactly one option present (no suffix, A, or F)
+- Optional account lines prefixed with / and max 34 characters appear before BIC or name/address
+- CRLF (\\r\\n) used as line separator in multi-line fields within Block 4
+- Charge bearer field 71A values: BEN (beneficiary pays all), OUR (ordering customer pays all), SHA (shared) - SEPA requires SHA
+- Format patterns use character classes matching SWIFT character sets X (alphanumeric + basic punctuation), Y (uppercase + digits + special), Z (extended)
+- Field ordering is critical: mandatory fields in sequence, optional fields have specific positioning rules relative to each other
+- Common field tag patterns: 5x fields = parties, 3x fields = amounts/currencies, 7x fields = charges/info, 2x/1x = references/codes
+- BIC format in fields: 4!a2!a2!c[3!c] = institution(4) + country(2) + location(2) + optional branch(3)
+- The schema is reusable for MT202, MT940, MT942 specifications with same structure
+---

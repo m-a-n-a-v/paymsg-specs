@@ -82,7 +82,7 @@
         "Document the '8 vs 11 character' rule"
       ],
       "priority": 5,
-      "passes": false,
+      "passes": true,
       "notes": "BIC validation is simpler than IBAN but still needs clear specification."
     },
     {
@@ -98,7 +98,7 @@
         "Create mt-specs/mt103.schema.json validating the specification format"
       ],
       "priority": 6,
-      "passes": false,
+      "passes": true,
       "notes": "MT103 is the most common SWIFT payment message. This spec drives the MT parser implementation."
     },
     {
