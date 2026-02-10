@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://paymsg.io/schemas/currencies.schema.json",
+  "title": "ISO 4217 Currency Reference Schema",
+  "description": "Schema for validating ISO 4217 currency reference data",
+  "type": "object",
+  "properties": {
+    "version": {
+      "type": "string",
+      "description": "Version of the currency data"
+    },
+    "last_updated": {
+      "type": "string",
+      "format": "date",
+      "description": "Date when the currency data was last updated"
+    },
+    "currencies": {
+      "type": "array",
+      "description": "Array of ISO 4217 currency definitions",
+      "items": {
+        "type": "object",
+        "required": ["code", "name", "numeric_code", "decimal_places", "is_active"],
+        "properties": {
+          "code": {
+            "type": "string",
+            "pattern": "^[A-Z]{3}$",
+            "description": "Three-letter ISO 4217 currency code"
+          },
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Full name of the currency"
+          },
+          "numeric_code": {
+            "type": "string",
+            "pattern": "^[0-9]{3}$",
+            "description": "Three-digit numeric code"
+          },
+          "decimal_places": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 4,
+            "description": "Number of decimal places for the currency"
+          },
+          "is_active": {
+            "type": "boolean",
+            "description": "Whether the currency is currently active"
+          }
+        },
+        "additionalProperties": false
+      },
+      "minItems": 1
+    }
+  },
+  "required": ["version", "last_updated", "currencies"],
+  "additionalProperties": false
+}
