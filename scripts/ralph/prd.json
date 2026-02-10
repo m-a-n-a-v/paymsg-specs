@@ -129,7 +129,7 @@
         "Reuse the mt-specs schema from SPEC-006"
       ],
       "priority": 8,
-      "passes": false,
+      "passes": true,
       "notes": "MT940 is crucial for account reconciliation. Field 61 parsing is particularly complex."
     },
     {
