@@ -34,7 +34,7 @@
         "currencies.json must validate against its schema"
       ],
       "priority": 2,
-      "passes": false,
+      "passes": true,
       "notes": "Source: ISO 4217. This is the canonical list for all paymsg currency validation."
     },
     {

@@ -32,3 +32,29 @@ Files changed:
 - Documentation should reference the consuming projects (paymsg, paymsg-playground)
 - Test data guidelines emphasize realistic but fictional data with valid formats
 ---
+
+## 2026-02-10 - SPEC-002
+- Implemented ISO 4217 currency reference data with 157 currencies
+- Created reference/currencies.schema.json defining JSON Schema validation rules
+- Created reference/currencies.json with complete currency definitions
+- All currencies include: code (3-letter), name, numeric_code (3-digit), decimal_places, is_active
+- Properly marked zero-decimal currencies: JPY, KRW, VND, BIF, CLP, DJF, GNF, ISK, KMF, PYG, RWF, UGX, VUV, XAF, XOF, XPF
+- Properly marked three-decimal currencies: BHD, IQD, JOD, KWD, LYD, OMR, TND
+- Included major global currencies: USD, EUR, GBP, JPY, CHF, CAD, AUD, CNY, INR, BRL
+- Validated all JSON files pass jq validation
+- currencies.json validates against its schema (157 currencies)
+
+Files changed:
+- reference/currencies.json (new)
+- reference/currencies.schema.json (new)
+- scripts/ralph/prd.json (updated SPEC-002 passes: true)
+
+**Learnings for future iterations:**
+- ISO 4217 currency codes require careful attention to decimal_places: most use 2, some use 0, some use 3
+- Zero-decimal currencies include Asian currencies (JPY, KRW), African CFA francs (XAF, XOF), and several others
+- Three-decimal currencies are primarily Middle Eastern dinars (BHD, IQD, JOD, KWD, OMR) plus TND and LYD
+- The numeric_code field must be a 3-digit string with leading zeros preserved (e.g., "008" not "8")
+- JSON Schema draft-07 is used for all schema definitions
+- Always validate JSON files with jq before committing
+- Some currencies are marked is_active: false (e.g., HRK replaced by EUR, SLL replaced by SLE)
+---
