@@ -1,0 +1,388 @@
+{
+  "project": "paymsg-specs",
+  "branchName": "ralph/build-specs",
+  "description": "Shared reference data repository for the paymsg ISO 20022 payment message engine. Contains XSD schemas, MT format specifications, field mapping definitions, validation rules, test data, and reference tables (currencies, countries, IBAN formats). This repo is consumed by both the core Rust library (paymsg) and the web playground (paymsg-playground).",
+  "userStories": [
+    {
+      "id": "SPEC-001",
+      "title": "Project scaffolding and directory structure",
+      "description": "As a developer, I need the repository to have a clear directory structure so that all reference data is organized and discoverable.",
+      "acceptanceCriteria": [
+        "Create top-level directories: schemas/, schemas/iso20022/, schemas/iso20022/pacs/, schemas/iso20022/camt/, mt-specs/, mappings/, rules/, testdata/, testdata/mt/, testdata/mx/, testdata/mt/mt103/, testdata/mt/mt202/, testdata/mt/mt940/, testdata/mt/mt942/, testdata/mx/pacs.008/, testdata/mx/pacs.009/, testdata/mx/camt.052/, testdata/mx/camt.053/, reference/",
+        "Create a root README.md explaining the repo purpose, directory layout, and how consuming projects should use this data",
+        "Create a .gitignore that ignores OS files (.DS_Store, Thumbs.db) and editor files",
+        "Create a LICENSE file with MIT license",
+        "Each top-level directory has a README.md explaining its contents and format conventions",
+        "All files are valid and the repo is clean (no broken references)"
+      ],
+      "priority": 1,
+      "passes": false,
+      "notes": "This is the foundation. Keep README docs concise but informative."
+    },
+    {
+      "id": "SPEC-002",
+      "title": "ISO 4217 currency reference data",
+      "description": "As a payment message processor, I need a complete ISO 4217 currency code reference table so I can validate currency fields and determine decimal precision.",
+      "acceptanceCriteria": [
+        "Create reference/currencies.json containing all active ISO 4217 currency codes",
+        "Each entry must have: code (3-letter), name, numeric_code (3-digit), decimal_places (0, 2, or 3), and is_active (boolean)",
+        "Include all major currencies: USD, EUR, GBP, JPY, CHF, CAD, AUD, CNY, INR, BRL, etc.",
+        "Include at minimum 150 active currencies",
+        "Zero-decimal currencies correctly marked (JPY, KRW, VND, etc. with decimal_places=0)",
+        "Three-decimal currencies correctly marked (BHD, KWD, OMR, etc. with decimal_places=3)",
+        "Create reference/currencies.schema.json as a JSON Schema validating the currencies.json format",
+        "currencies.json must validate against its schema"
+      ],
+      "priority": 2,
+      "passes": false,
+      "notes": "Source: ISO 4217. This is the canonical list for all paymsg currency validation."
+    },
+    {
+      "id": "SPEC-003",
+      "title": "ISO 3166 country code reference data",
+      "description": "As a payment message processor, I need a complete ISO 3166-1 country code reference table for validating country fields in BICs, IBANs, and addresses.",
+      "acceptanceCriteria": [
+        "Create reference/countries.json containing all ISO 3166-1 alpha-2 country codes",
+        "Each entry must have: alpha2 (2-letter), alpha3 (3-letter), numeric (3-digit), name, and is_eu_member (boolean)",
+        "Include all 249 officially assigned alpha-2 codes",
+        "EU membership flags must be accurate (27 current EU members as of 2025)",
+        "Create reference/countries.schema.json as a JSON Schema validating the format",
+        "countries.json must validate against its schema"
+      ],
+      "priority": 3,
+      "passes": false,
+      "notes": "EU membership matters for regulatory reporting rules in validation."
+    },
+    {
+      "id": "SPEC-004",
+      "title": "IBAN format reference data",
+      "description": "As a payment message processor, I need per-country IBAN format definitions so I can validate IBAN structure beyond just check digits.",
+      "acceptanceCriteria": [
+        "Create reference/iban_formats.json with IBAN structure definitions per country",
+        "Each entry must have: country_code, length, bban_format (regex pattern for the BBAN portion), example (a valid example IBAN), and bank_id_position (start/end indices within BBAN for bank identifier)",
+        "Include at minimum the top 50 countries by IBAN usage (all SEPA countries plus major non-SEPA IBAN adopters)",
+        "All example IBANs must pass Mod-97 check digit validation",
+        "Create reference/iban_formats.schema.json as a JSON Schema validating the format",
+        "iban_formats.json must validate against its schema"
+      ],
+      "priority": 4,
+      "passes": false,
+      "notes": "Source: SWIFT IBAN Registry. BBAN formats vary significantly by country."
+    },
+    {
+      "id": "SPEC-005",
+      "title": "BIC structure reference and validation spec",
+      "description": "As a payment message processor, I need BIC/SWIFT code format specifications for validation.",
+      "acceptanceCriteria": [
+        "Create reference/bic_spec.json documenting BIC structure: institution (4 alpha), country (2 alpha), location (2 alphanum), branch (3 alphanum, optional)",
+        "Include character set definitions for each position",
+        "Include a list of 20+ example valid BICs from major global banks (e.g., DEUTDEFF, BNPAFRPP, CHASUS33, BOFAUS3N, etc.)",
+        "Include 5+ example invalid BICs with explanation of why they're invalid",
+        "Document the 'XXX' branch convention (head office)",
+        "Document the '8 vs 11 character' rule"
+      ],
+      "priority": 5,
+      "passes": false,
+      "notes": "BIC validation is simpler than IBAN but still needs clear specification."
+    },
+    {
+      "id": "SPEC-006",
+      "title": "MT103 message format specification",
+      "description": "As a payment message parser, I need a complete machine-readable specification of the MT103 (Single Customer Credit Transfer) format.",
+      "acceptanceCriteria": [
+        "Create mt-specs/mt103.json with the complete MT103 field specification",
+        "Each field entry must have: tag (e.g., '20'), name, status (M=mandatory/O=optional), options (array of option letters like A, B, D, K), max_length, format_pattern (regex), description, and subfields (for composite fields like 32A)",
+        "Include all MT103 fields: 20, 13C, 23B, 23E, 26T, 32A, 33B, 36, 50A/F/K, 51A, 52A/D, 53A/B/D, 54A/B/D, 55A/B/D, 56A/C/D, 57A/B/C/D, 59/59A/59F, 70, 71A, 71F, 71G, 72, 77B",
+        "Document the 5-block structure (Basic Header, Application Header, User Header, Text Block, Trailer) with format patterns for each block",
+        "Include field ordering rules (which fields must appear before others)",
+        "Create mt-specs/mt103.schema.json validating the specification format"
+      ],
+      "priority": 6,
+      "passes": false,
+      "notes": "MT103 is the most common SWIFT payment message. This spec drives the MT parser implementation."
+    },
+    {
+      "id": "SPEC-007",
+      "title": "MT202 message format specification",
+      "description": "As a payment message parser, I need a complete machine-readable specification of the MT202 (General Financial Institution Transfer) format.",
+      "acceptanceCriteria": [
+        "Create mt-specs/mt202.json with the complete MT202 field specification",
+        "Each field entry follows the same schema as MT103 (tag, name, status, options, max_length, format_pattern, description, subfields)",
+        "Include all MT202 fields: 20, 21, 13C, 32A, 52A/D, 53A/B/D, 54A/B/D, 56A/D, 57A/B/D, 58A/D, 72",
+        "Document differences from MT103 (no beneficiary customer, no charges fields)",
+        "Reuse the mt-specs schema from SPEC-006"
+      ],
+      "priority": 7,
+      "passes": false,
+      "notes": "MT202 is bank-to-bank. Simpler than MT103 but critical for interbank transfers."
+    },
+    {
+      "id": "SPEC-008",
+      "title": "MT940 message format specification",
+      "description": "As a payment message parser, I need a complete machine-readable specification of the MT940 (Customer Statement) format.",
+      "acceptanceCriteria": [
+        "Create mt-specs/mt940.json with the complete MT940 field specification",
+        "Include all MT940 fields: 20, 25/25P, 28C, 60F/60M, 61, 86, 62F/62M, 64, 65",
+        "Document the repeating nature of field 61+86 (statement line + information to account owner)",
+        "Document field 61 subfield parsing (value date, entry date, debit/credit mark, amount, transaction type, reference, etc.)",
+        "Document the balance fields (60F=opening, 62F=closing, 64=available, 65=forward available)",
+        "Reuse the mt-specs schema from SPEC-006"
+      ],
+      "priority": 8,
+      "passes": false,
+      "notes": "MT940 is crucial for account reconciliation. Field 61 parsing is particularly complex."
+    },
+    {
+      "id": "SPEC-009",
+      "title": "MT942 message format specification",
+      "description": "As a payment message parser, I need a complete machine-readable specification of the MT942 (Interim Transaction Report) format.",
+      "acceptanceCriteria": [
+        "Create mt-specs/mt942.json with the complete MT942 field specification",
+        "Include all MT942 fields: 20, 25/25P, 28C, 13D, 34F, 61, 86, 90D, 90C",
+        "Document differences from MT940 (interim vs end-of-day, no opening/closing balances, has floor limit debit/credit)",
+        "Reuse the mt-specs schema from SPEC-006"
+      ],
+      "priority": 9,
+      "passes": false,
+      "notes": "MT942 is the intraday version of MT940."
+    },
+    {
+      "id": "SPEC-010",
+      "title": "MT message block structure specification",
+      "description": "As a payment message parser, I need a detailed specification of the SWIFT MT block structure that applies to all MT message types.",
+      "acceptanceCriteria": [
+        "Create mt-specs/block_structure.json describing all 5 blocks",
+        "Block 1 (Basic Header): format pattern {1:F01BANKBICAXXX0000000000}, field positions for app_id, service_id, logical_terminal, session_number, sequence_number",
+        "Block 2 (Application Header): input format {2:I103BANKBICAXXXXN} and output format {2:O1030000000000BANKBICAXXXX0000000000000000N}, with field positions",
+        "Block 3 (User Header): tag-value pairs format {3:{108:MT103}{121:UUID}}, document common tags (108=MUR, 121=UETR, 119=STP/REMIT)",
+        "Block 4 (Text Block): delimiters {4:\\n:20:ref\\n:32A:...\\n-}, field tag format :NN[a]:, continuation line rules",
+        "Block 5 (Trailer): format {5:{CHK:checksum}{TNG:}}, document common trailer tags (CHK, TNG, PDE, DLM, MRF, PDM, SYS)",
+        "Include character set rules: which characters are valid in each block"
+      ],
+      "priority": 10,
+      "passes": false,
+      "notes": "This is shared infrastructure used by all MT parsers."
+    },
+    {
+      "id": "SPEC-011",
+      "title": "SWIFT character set specifications",
+      "description": "As a payment message processor, I need the SWIFT character set definitions for proper encoding/decoding of MT messages.",
+      "acceptanceCriteria": [
+        "Create reference/swift_charsets.json defining SWIFT character sets X, Y, and Z",
+        "SWIFT X (alphanumeric): list all valid characters with their descriptions",
+        "SWIFT Y (uppercase letters + digits + special): list all valid characters",
+        "SWIFT Z (SWIFT extended): list all valid characters including special characters like CrLf",
+        "Include mapping tables for converting common UTF-8 characters to their SWIFT equivalents (e.g., accented characters, special symbols)",
+        "Document which fields in MT103/202/940/942 use which character set"
+      ],
+      "priority": 11,
+      "passes": false,
+      "notes": "Character set conversion is critical for MT<->MX translation."
+    },
+    {
+      "id": "SPEC-012",
+      "title": "MT103 to pacs.008 field mapping definitions",
+      "description": "As a translation engine, I need detailed field-level mapping definitions between MT103 and pacs.008.001.10.",
+      "acceptanceCriteria": [
+        "Create mappings/mt103_pacs008.json with bidirectional field mappings",
+        "Each mapping entry must have: mt_tag, mt_field_name, mt_option (A/B/D/K etc), mx_path (XPath-like), transform_type (direct/split/merge/lookup/derived/conditional), transform_details, direction (mt_to_mx/mx_to_mt/both), data_loss_risk (none/possible/certain), and notes",
+        "Cover ALL MT103 fields with their corresponding pacs.008 elements",
+        "Document field 50 (Ordering Customer) mapping with all options (A, F, K) to Dbtr/DbtrAcct elements",
+        "Document field 32A splitting: date->IntrBkSttlmDt, currency+amount->IntrBkSttlmAmt",
+        "Document field 59 (Beneficiary) mapping to Cdtr/CdtrAcct with all options",
+        "Document field 71A (Charges) lookup: BEN->CRED, OUR->DEBT, SHA->SHAR",
+        "Document fields that have no MT equivalent (MX-only fields that must be defaulted)",
+        "Document fields that have no MX equivalent (MT-only fields that will be lost)",
+        "Include truncation rules for MX->MT direction (which MX fields get truncated and to what length)",
+        "Create mappings/mapping.schema.json validating the mapping format"
+      ],
+      "priority": 12,
+      "passes": false,
+      "notes": "This is the flagship translation pair. Must be thorough and accurate."
+    },
+    {
+      "id": "SPEC-013",
+      "title": "MT202 to pacs.009 field mapping definitions",
+      "description": "As a translation engine, I need field-level mapping definitions between MT202 and pacs.009.001.10.",
+      "acceptanceCriteria": [
+        "Create mappings/mt202_pacs009.json with bidirectional field mappings",
+        "Follow the same schema as SPEC-012 (mapping.schema.json)",
+        "Cover all MT202 fields with their pacs.009 counterparts",
+        "Document key differences from MT103/pacs.008 mapping (no beneficiary customer, institutional focus)",
+        "Document data loss scenarios in both directions"
+      ],
+      "priority": 13,
+      "passes": false,
+      "notes": "Simpler than MT103/pacs.008 but still requires careful field mapping."
+    },
+    {
+      "id": "SPEC-014",
+      "title": "MT940 to camt.053 field mapping definitions",
+      "description": "As a translation engine, I need field-level mapping definitions between MT940 and camt.053.001.10.",
+      "acceptanceCriteria": [
+        "Create mappings/mt940_camt053.json with bidirectional field mappings",
+        "Follow the same schema as SPEC-012",
+        "Document the repeating statement line (field 61) to Ntry mapping",
+        "Document balance field mappings (60F/62F/64/65 to Bal elements with BalTp codes)",
+        "Document field 86 (Information to Account Owner) to Ntry/NtryDtls mapping",
+        "Document data loss scenarios in both directions"
+      ],
+      "priority": 14,
+      "passes": false,
+      "notes": "Statement messages have repeating structures that make mapping more complex."
+    },
+    {
+      "id": "SPEC-015",
+      "title": "MT942 to camt.052 field mapping definitions",
+      "description": "As a translation engine, I need field-level mapping definitions between MT942 and camt.052.001.10.",
+      "acceptanceCriteria": [
+        "Create mappings/mt942_camt052.json with bidirectional field mappings",
+        "Follow the same schema as SPEC-012",
+        "Document differences from MT940/camt.053 mapping (interim vs end-of-day)",
+        "Document floor limit debit/credit (90D/90C) mapping",
+        "Document data loss scenarios in both directions"
+      ],
+      "priority": 15,
+      "passes": false,
+      "notes": "Very similar to MT940/camt.053 but for intraday reporting."
+    },
+    {
+      "id": "SPEC-016",
+      "title": "Business validation rules for pacs.008",
+      "description": "As a validation engine, I need declarative business rules for pacs.008 messages that go beyond schema validation.",
+      "acceptanceCriteria": [
+        "Create rules/pacs008_rules.json with at least 30 business validation rules",
+        "Each rule must have: id, message_type, description, severity (error/warning/info), condition (when the rule applies), assertion (what must be true), field_paths (which fields are involved), and suggestion (how to fix)",
+        "Include rules for: amount positivity, settlement date not in past, required BICs, IBAN validity, currency code validity, charge bearer consistency, end-to-end ID presence, debtor/creditor completeness",
+        "Include conditional rules: if EU country then regulatory reporting required, if amount > threshold then additional party info required",
+        "Include cross-field rules: currency in amount must match currency in instructed amount, settlement method consistency",
+        "Create rules/rules.schema.json validating the rule format",
+        "Each rule has a unique ID following pattern PACS008-XXNN (XX=category, NN=number)"
+      ],
+      "priority": 16,
+      "passes": false,
+      "notes": "Business rules are the real value differentiator. These must be accurate and well-documented."
+    },
+    {
+      "id": "SPEC-017",
+      "title": "Business validation rules for pacs.009, camt.052, camt.053",
+      "description": "As a validation engine, I need declarative business rules for the remaining supported message types.",
+      "acceptanceCriteria": [
+        "Create rules/pacs009_rules.json with at least 15 business validation rules for pacs.009",
+        "Create rules/camt052_rules.json with at least 10 business validation rules for camt.052",
+        "Create rules/camt053_rules.json with at least 15 business validation rules for camt.053",
+        "All rule files follow the same schema (rules.schema.json from SPEC-016)",
+        "camt.053 rules include: balance consistency (opening + entries = closing), entry amount validity, booking date rules",
+        "pacs.009 rules include: instructing/instructed agent requirements, settlement method rules",
+        "Each rule has a unique ID following its message type pattern"
+      ],
+      "priority": 17,
+      "passes": false,
+      "notes": "These can be lighter than pacs.008 but must cover the key validation scenarios."
+    },
+    {
+      "id": "SPEC-018",
+      "title": "Sample MT103 test messages",
+      "description": "As a test suite, I need realistic MT103 sample messages covering various scenarios.",
+      "acceptanceCriteria": [
+        "Create testdata/mt/mt103/minimal_valid.mt - a minimal valid MT103 with only mandatory fields",
+        "Create testdata/mt/mt103/full_valid.mt - a complete MT103 with all optional fields populated",
+        "Create testdata/mt/mt103/sepa_credit.mt - a SEPA credit transfer (EUR, EU banks)",
+        "Create testdata/mt/mt103/usd_wire.mt - a USD wire transfer (US banks, Fedwire style)",
+        "Create testdata/mt/mt103/cross_border.mt - a cross-border transfer with intermediary banks",
+        "Create testdata/mt/mt103/invalid_missing_mandatory.mt - missing required field 32A (should fail validation)",
+        "Create testdata/mt/mt103/invalid_bad_bic.mt - contains an invalid BIC (should fail validation)",
+        "All valid messages must have correct block structure ({1:...}{2:...}{4:...})",
+        "Each test file has a companion .meta.json describing what the test covers and expected validation result (pass/fail with which rules)"
+      ],
+      "priority": 18,
+      "passes": false,
+      "notes": "Use realistic but fictional bank names and BICs. Never use real customer data."
+    },
+    {
+      "id": "SPEC-019",
+      "title": "Sample pacs.008 test messages",
+      "description": "As a test suite, I need realistic pacs.008.001.10 XML sample messages.",
+      "acceptanceCriteria": [
+        "Create testdata/mx/pacs.008/minimal_valid.xml - minimal valid pacs.008 with only required elements",
+        "Create testdata/mx/pacs.008/full_valid.xml - complete pacs.008 with all optional elements",
+        "Create testdata/mx/pacs.008/sepa_credit.xml - SEPA credit transfer equivalent",
+        "Create testdata/mx/pacs.008/usd_wire.xml - USD wire transfer equivalent",
+        "Create testdata/mx/pacs.008/multi_transaction.xml - a pacs.008 with multiple CdtTrfTxInf entries (batch)",
+        "Create testdata/mx/pacs.008/invalid_missing_element.xml - missing required GrpHdr (should fail)",
+        "Create testdata/mx/pacs.008/invalid_bad_currency.xml - invalid currency code (should fail)",
+        "All valid XML messages must use correct ISO 20022 namespace (urn:iso:std:iso:20022:tech:xsd:pacs.008.001.10)",
+        "Each test file has a companion .meta.json"
+      ],
+      "priority": 19,
+      "passes": false,
+      "notes": "These should be semantically equivalent to the MT103 samples where possible, to enable round-trip testing."
+    },
+    {
+      "id": "SPEC-020",
+      "title": "Sample MT202, MT940, MT942 test messages",
+      "description": "As a test suite, I need sample messages for the remaining MT types.",
+      "acceptanceCriteria": [
+        "Create testdata/mt/mt202/ with at least 3 messages: minimal_valid.mt, full_valid.mt, interbank_transfer.mt, each with .meta.json",
+        "Create testdata/mt/mt940/ with at least 3 messages: minimal_valid.mt, multi_statement_line.mt (with 5+ field 61 entries), month_end.mt, each with .meta.json",
+        "Create testdata/mt/mt942/ with at least 2 messages: minimal_valid.mt, intraday_report.mt, each with .meta.json",
+        "All messages have correct block structure",
+        "MT940 multi_statement_line.mt demonstrates repeating 61+86 field patterns"
+      ],
+      "priority": 20,
+      "passes": false,
+      "notes": "Can be lighter than MT103 test data but must demonstrate key format features."
+    },
+    {
+      "id": "SPEC-021",
+      "title": "Sample pacs.009, camt.052, camt.053 test messages",
+      "description": "As a test suite, I need sample XML messages for the remaining MX types.",
+      "acceptanceCriteria": [
+        "Create testdata/mx/pacs.009/ with at least 2 messages: minimal_valid.xml, fi_transfer.xml, each with .meta.json",
+        "Create testdata/mx/camt.053/ with at least 3 messages: minimal_valid.xml, multi_entry.xml (5+ entries), daily_statement.xml, each with .meta.json",
+        "Create testdata/mx/camt.052/ with at least 2 messages: minimal_valid.xml, intraday_report.xml, each with .meta.json",
+        "All XML messages use correct ISO 20022 namespaces for their respective message types",
+        "Each test file has a companion .meta.json"
+      ],
+      "priority": 21,
+      "passes": false,
+      "notes": "Ensure semantic equivalence with MT counterparts where applicable for round-trip testing."
+    },
+    {
+      "id": "SPEC-022",
+      "title": "Translation test pairs (MT<->MX matched pairs)",
+      "description": "As a translation test suite, I need matched pairs of MT and MX messages that represent the same payment for round-trip testing.",
+      "acceptanceCriteria": [
+        "Create testdata/translation_pairs/ directory",
+        "Create testdata/translation_pairs/mt103_pacs008/ with at least 3 matched pairs",
+        "Each pair has: source.mt, expected.xml, source.xml, expected.mt, and pair.meta.json",
+        "pair.meta.json documents: which fields map 1:1, which fields are split/merged, which fields are lost in each direction, which fields are defaulted",
+        "Create testdata/translation_pairs/mt940_camt053/ with at least 2 matched pairs",
+        "Create testdata/translation_pairs/mt202_pacs009/ with at least 1 matched pair",
+        "Create testdata/translation_pairs/mt942_camt052/ with at least 1 matched pair",
+        "All pairs must be semantically consistent (same payment, same amounts, same parties)"
+      ],
+      "priority": 22,
+      "passes": false,
+      "notes": "These pairs are the gold standard for testing the translation engine. Quality over quantity."
+    },
+    {
+      "id": "SPEC-023",
+      "title": "Validation and completeness checks",
+      "description": "As a quality gate, I need a validation script that checks all spec files for internal consistency.",
+      "acceptanceCriteria": [
+        "Create a validate.sh script in the root that checks all JSON files are valid JSON (using jq or python)",
+        "Verify all JSON files that have a .schema.json companion validate against their schema",
+        "Verify all .meta.json files exist for their corresponding test data files",
+        "Verify all example IBANs in iban_formats.json pass Mod-97 check digit validation",
+        "Verify no duplicate rule IDs across all rule files",
+        "Verify all mapping files reference valid MT tags (cross-reference with mt-specs)",
+        "The script exits 0 if all checks pass, non-zero with clear error messages if any fail",
+        "Add a CI section to README.md explaining how to run validation"
+      ],
+      "priority": 23,
+      "passes": false,
+      "notes": "This is the quality gate. All future contributions must pass these checks."
+    }
+  ]
+}
