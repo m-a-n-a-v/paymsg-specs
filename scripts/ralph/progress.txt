@@ -200,3 +200,34 @@ Files changed:
 - BIC format in fields: 4!a2!a2!c[3!c] = institution(4) + country(2) + location(2) + optional branch(3)
 - The schema is reusable for MT202, MT940, MT942 specifications with same structure
 ---
+
+## 2026-02-10 - SPEC-007
+- Implemented MT202 (General Financial Institution Transfer) message format specification
+- Created mt-specs/mt202.json with comprehensive field specifications (518 lines)
+- Documented all 5 MT message blocks with format patterns and descriptions
+- Specified 21 fields covering all MT202 field tags and options:
+  - Mandatory fields: 20 (Transaction Reference), 21 (Related Reference), 32A (Value Date/Currency/Amount)
+  - Institution fields with multiple options: 52A/D (Ordering), 53A/B/D (Sender's Correspondent), 54A/B/D (Receiver's Correspondent), 56A/D (Intermediary), 57A/B/D (Account With), 58A/D (Beneficiary)
+  - Optional fields: 13C (Time Indication), 72 (Sender to Receiver Information)
+- Each field includes detailed format patterns (regex), max length, SWIFT character set requirements, and subfield breakdowns for composite fields
+- Documented field ordering rules: mandatory sequence and optional field positioning constraints
+- Reused mt-specs/mt103.schema.json as the validation schema (shared across all MT message types)
+- Validated JSON file with jq
+- Key differences from MT103 documented: no beneficiary customer fields (50/59), no charges fields (71A/71F/71G), institutional focus only
+
+Files changed:
+- mt-specs/mt202.json (new, 518 lines)
+- scripts/ralph/prd.json (updated SPEC-007 passes: true)
+
+**Learnings for future iterations:**
+- MT202 is bank-to-bank only: no individual customer party identification (fields 50/59 from MT103 do not exist)
+- MT202 has no charges-related fields: no field 71A (Details of Charges), 71F (Sender's Charges), or 71G (Receiver's Charges) unlike MT103
+- Field 21 (Related Reference) is mandatory in MT202 but not in MT103 - it links to the underlying customer payment (e.g., MT103 field 20)
+- Field 58 (Beneficiary Institution) replaces field 59 (Beneficiary Customer) from MT103
+- MT202 is commonly used as a "cover payment" for MT103 customer transfers, especially in correspondent banking chains
+- Field 72 in MT202 often contains /INS/ codes for special instructions in cover payments
+- Institution party fields (52/53/54/56/57/58) follow same option pattern as MT103: A=BIC, B=Location, D=Name&Address
+- MT202 has fewer optional intermediary fields than MT103: no field 51A (Sending Institution), no fields 55 (Third Reimbursement)
+- Field ordering is simpler than MT103 due to fewer fields
+- The same JSON schema structure from MT103 works perfectly for MT202, confirming the reusable design
+---

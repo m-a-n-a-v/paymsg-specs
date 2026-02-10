@@ -113,7 +113,7 @@
         "Reuse the mt-specs schema from SPEC-006"
       ],
       "priority": 7,
-      "passes": false,
+      "passes": true,
       "notes": "MT202 is bank-to-bank. Simpler than MT103 but critical for interbank transfers."
     },
     {
