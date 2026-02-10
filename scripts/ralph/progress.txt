@@ -81,3 +81,39 @@ Files changed:
 - Similar to currencies, the numeric field must be a string to preserve leading zeros
 ---
 
+## 2026-02-10 - SPEC-004
+- Implemented IBAN format reference data with 74 countries (exceeds minimum requirement of 50)
+- Created reference/iban_formats.schema.json defining JSON Schema validation rules
+- Created reference/iban_formats.json with complete IBAN structure definitions per country
+- All entries include: country_code, length, bban_format (regex), example IBAN, bank_id_position, and country_name
+- Included all SEPA countries plus major non-SEPA IBAN adopters from around the world:
+  - All 27 EU member states
+  - EEA countries (Norway, Iceland, Liechtenstein)
+  - Switzerland, UK (post-Brexit SEPA participants)
+  - Middle East: UAE, Saudi Arabia, Qatar, Kuwait, Bahrain, Jordan, Iraq, Lebanon
+  - Asia: Israel, Pakistan, Kazakhstan, Georgia, Azerbaijan
+  - Americas: Brazil, Costa Rica, Guatemala, Dominican Republic
+  - Africa: Egypt, Tunisia, Mauritania, Sao Tome and Principe
+  - Small states: Monaco, San Marino, Vatican City, Andorra
+  - Other territories: British Virgin Islands, Saint Lucia, Palestine, Kosovo
+- All 74 example IBANs pass Mod-97 check digit validation (verified with Python script)
+- Validated all JSON files pass jq validation
+- iban_formats.json validates against its schema structure
+
+Files changed:
+- reference/iban_formats.json (new, 74 countries)
+- reference/iban_formats.schema.json (new)
+- scripts/ralph/prd.json (updated SPEC-004 passes: true)
+
+**Learnings for future iterations:**
+- IBAN Mod-97 algorithm: Move first 4 chars to end, replace letters with numbers (A=10...Z=35), check mod 97 = 1
+- IBAN lengths vary significantly by country: shortest is NO/NO at 15 chars, longest are LC/MU at 30-32 chars
+- BBAN formats vary widely: some countries use only digits (DE, DK, NO), others use mixed alphanumeric (FR, GB, NL)
+- Bank identifier positions within BBAN are not standardized: can be at start, middle, or vary by country banking system
+- Some countries have special BBAN structures with check digits or control codes embedded (IT has check character at position 0)
+- SEPA includes 36 countries: 27 EU members + EEA (NO, IS, LI) + CH, UK, MC, SM, VA, AD
+- Major non-SEPA IBAN countries include Middle East (GCC countries), some Latin American countries (BR, CR, GT, DO), and various others
+- IBAN Registry maintained by SWIFT is the authoritative source for country-specific IBAN formats
+- Always validate example IBANs with Mod-97 to ensure correctness of check digits
+---
+

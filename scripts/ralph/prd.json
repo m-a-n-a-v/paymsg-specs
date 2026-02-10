@@ -66,7 +66,7 @@
         "iban_formats.json must validate against its schema"
       ],
       "priority": 4,
-      "passes": false,
+      "passes": true,
       "notes": "Source: SWIFT IBAN Registry. BBAN formats vary significantly by country."
     },
     {
