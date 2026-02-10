@@ -50,7 +50,7 @@
         "countries.json must validate against its schema"
       ],
       "priority": 3,
-      "passes": false,
+      "passes": true,
       "notes": "EU membership matters for regulatory reporting rules in validation."
     },
     {

@@ -58,3 +58,26 @@ Files changed:
 - Always validate JSON files with jq before committing
 - Some currencies are marked is_active: false (e.g., HRK replaced by EUR, SLL replaced by SLE)
 ---
+## 2026-02-10 - SPEC-003
+- Implemented ISO 3166-1 country code reference data with all 249 officially assigned alpha-2 codes
+- Created reference/countries.schema.json defining JSON Schema validation rules
+- Created reference/countries.json with complete country definitions
+- All countries include: alpha2 (2-letter), alpha3 (3-letter), numeric (3-digit), name, is_eu_member (boolean)
+- Accurately marked all 27 EU members as of 2025: AT, BE, BG, CY, CZ, DE, DK, EE, ES, FI, FR, GR, HR, HU, IE, IT, LT, LU, LV, MT, NL, PL, PT, RO, SE, SI, SK
+- Validated all JSON files pass jq validation
+- countries.json validates against its schema (249 countries, 27 EU members)
+
+Files changed:
+- reference/countries.json (new)
+- reference/countries.schema.json (new)
+- scripts/ralph/prd.json (updated SPEC-003 passes: true)
+
+**Learnings for future iterations:**
+- ISO 3166-1 includes all 249 officially assigned codes including territories, dependencies, and special administrative regions
+- EU membership as of 2025 has 27 member states (Croatia joined in 2013, UK left in 2020)
+- Numeric codes must be 3-digit strings with leading zeros preserved (e.g., "004" for Afghanistan, not "4")
+- Country names should match the official ISO 3166-1 short name in English (e.g., "Czechia" not "Czech Republic", "Cabo Verde" not "Cape Verde")
+- The is_eu_member flag is critical for regulatory reporting and validation rules that apply specifically to EU transactions
+- Similar to currencies, the numeric field must be a string to preserve leading zeros
+---
+
