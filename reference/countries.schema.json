@@ -1,0 +1,45 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "ISO 3166-1 Country Codes",
+  "description": "JSON Schema for validating ISO 3166-1 country code reference data",
+  "type": "array",
+  "items": {
+    "type": "object",
+    "required": [
+      "alpha2",
+      "alpha3",
+      "numeric",
+      "name",
+      "is_eu_member"
+    ],
+    "properties": {
+      "alpha2": {
+        "type": "string",
+        "pattern": "^[A-Z]{2}$",
+        "description": "ISO 3166-1 alpha-2 code (2 uppercase letters)"
+      },
+      "alpha3": {
+        "type": "string",
+        "pattern": "^[A-Z]{3}$",
+        "description": "ISO 3166-1 alpha-3 code (3 uppercase letters)"
+      },
+      "numeric": {
+        "type": "string",
+        "pattern": "^[0-9]{3}$",
+        "description": "ISO 3166-1 numeric code (3 digits with leading zeros)"
+      },
+      "name": {
+        "type": "string",
+        "minLength": 1,
+        "description": "Official short name in English"
+      },
+      "is_eu_member": {
+        "type": "boolean",
+        "description": "Whether the country is currently a member of the European Union"
+      }
+    },
+    "additionalProperties": false
+  },
+  "minItems": 1,
+  "uniqueItems": true
+}
