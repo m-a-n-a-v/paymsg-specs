@@ -143,7 +143,7 @@
         "Reuse the mt-specs schema from SPEC-006"
       ],
       "priority": 9,
-      "passes": false,
+      "passes": true,
       "notes": "MT942 is the intraday version of MT940."
     },
     {

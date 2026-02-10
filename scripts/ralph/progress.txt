@@ -267,3 +267,48 @@ Files changed:
 - MT940 uses field 25 (account number) or 25P (BIC/account) - one must be present but not both
 - The schema structure from MT103 works perfectly for MT940, confirming the reusable design pattern
 ---
+
+## 2026-02-10 - SPEC-009
+- Implemented MT942 (Interim Transaction Report) message format specification
+- Created mt-specs/mt942.json with comprehensive field specifications (319 lines)
+- Documented all 5 MT message blocks with format patterns and descriptions
+- Specified 10 fields covering all MT942 field tags:
+  - Mandatory fields: 20 (Transaction Reference), 25 (Account Identification), 25P (Account with BIC), 28C (Statement/Sequence Number)
+  - Optional metadata fields: 13D (Date/Time Indication), 34F (Floor Limit Indicator)
+  - Transaction fields: 61 (Statement Line - repeating), 86 (Information to Account Owner - repeating)
+  - Summary fields: 90D (Number and Sum of Debit Entries), 90C (Number and Sum of Credit Entries)
+- Each field includes detailed format patterns (regex), max length, SWIFT character set requirements, and subfield breakdowns for composite fields
+- Documented key differences from MT940:
+  - No opening balance fields (60F/60M) or closing balance fields (62F/62M)
+  - Has floor limit indicator (34F) to specify threshold for individual transaction reporting
+  - Has date/time indication (13D) for precise intraday timestamp
+  - Has summary totals (90D/90C) that include ALL transactions (both above and below floor limit)
+- Documented field ordering rules: mandatory sequence, optional metadata, repeating statement lines, summary totals
+- Added comprehensive usage notes covering:
+  - Interim vs final reporting (MT942 is intraday, MT940 is end-of-day)
+  - No balance reporting in MT942 (focus on transaction activity only)
+  - Floor limit concept: only transactions above threshold are listed in field 61, but all transactions included in 90D/90C summaries
+  - Summary totals provide complete picture of all debits and credits
+  - Time indication for precise intraday reporting
+  - Field 61 and 86 structures identical to MT940
+  - Use case: real-time cash management, liquidity monitoring, fraud detection
+- Reused mt-specs/mt103.schema.json as validation schema (shared across all MT message types)
+- Validated JSON file with jq
+
+Files changed:
+- mt-specs/mt942.json (new, 319 lines)
+- scripts/ralph/prd.json (updated SPEC-009 passes: true)
+
+**Learnings for future iterations:**
+- MT942 is the intraday/interim version of MT940 - key distinction is timing and content focus
+- MT942 focuses on transaction activity, not balances - no opening/closing balance fields unlike MT940
+- Floor limit concept (field 34F) is unique to MT942: sets threshold for individual transaction reporting to reduce message size for high-volume accounts
+- Transactions below floor limit are NOT listed in field 61 but ARE included in summary totals (90D/90C)
+- Field 90D (debit totals) and 90C (credit totals) provide the complete picture: number of entries + sum of amounts for ALL transactions
+- Field 13D provides precise date/time stamp (YYMMDD+HHMM format) - critical for intraday reporting where multiple messages may be sent for same account
+- Field 61 structure is identical to MT940: same complex subfield parsing for value date, entry date, D/C mark, funds code, amount, transaction type, references
+- Field 86 structure is identical to MT940: unstructured or bank-proprietary structured format for transaction details
+- MT942 can be sent multiple times during business day, unlike MT940 which is typically once at end of day
+- Use case distinction: MT942 for real-time treasury management and fraud detection, MT940 for end-of-day reconciliation
+- The same JSON schema structure from MT103 works perfectly for MT942, confirming the reusable design pattern across all MT message types
+---
