@@ -1,0 +1,205 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://paymsg.dev/schemas/mt-spec.schema.json",
+  "title": "MT Message Specification Schema",
+  "description": "JSON Schema for SWIFT MT message format specifications",
+  "type": "object",
+  "required": ["message_type", "name", "description", "blocks", "fields", "field_ordering"],
+  "properties": {
+    "message_type": {
+      "type": "string",
+      "pattern": "^MT\\d{3}$",
+      "description": "MT message type identifier (e.g., MT103, MT202)"
+    },
+    "name": {
+      "type": "string",
+      "description": "Human-readable message name"
+    },
+    "description": {
+      "type": "string",
+      "description": "Detailed description of the message purpose and usage"
+    },
+    "blocks": {
+      "type": "object",
+      "description": "5-block MT message structure definitions",
+      "required": ["block1", "block2", "block3", "block4", "block5"],
+      "properties": {
+        "block1": {
+          "type": "object",
+          "description": "Basic Header block",
+          "required": ["format", "description"],
+          "properties": {
+            "format": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        },
+        "block2": {
+          "type": "object",
+          "description": "Application Header block",
+          "required": ["format", "description"],
+          "properties": {
+            "format": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        },
+        "block3": {
+          "type": "object",
+          "description": "User Header block (optional)",
+          "required": ["format", "description"],
+          "properties": {
+            "format": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        },
+        "block4": {
+          "type": "object",
+          "description": "Text Block containing message fields",
+          "required": ["format", "description"],
+          "properties": {
+            "format": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        },
+        "block5": {
+          "type": "object",
+          "description": "Trailer block (optional)",
+          "required": ["format", "description"],
+          "properties": {
+            "format": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    },
+    "fields": {
+      "type": "array",
+      "description": "Array of field definitions for this message type",
+      "items": {
+        "type": "object",
+        "required": ["tag", "name", "status", "options", "max_length", "format_pattern", "description"],
+        "properties": {
+          "tag": {
+            "type": "string",
+            "pattern": "^\\d{2}[A-Z]?$",
+            "description": "Field tag identifier (2 digits optionally followed by a letter)"
+          },
+          "name": {
+            "type": "string",
+            "description": "Human-readable field name"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["M", "O"],
+            "description": "M=mandatory, O=optional"
+          },
+          "options": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "pattern": "^[A-Z]$"
+            },
+            "description": "Array of option letters for fields with multiple format options"
+          },
+          "max_length": {
+            "type": "integer",
+            "minimum": 1,
+            "description": "Maximum character length for the field"
+          },
+          "format_pattern": {
+            "type": "string",
+            "description": "Regex pattern defining valid field content"
+          },
+          "description": {
+            "type": "string",
+            "description": "Detailed field description and usage notes"
+          },
+          "subfields": {
+            "oneOf": [
+              {"type": "null"},
+              {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": ["name", "position", "format"],
+                  "properties": {
+                    "name": {
+                      "type": "string"
+                    },
+                    "position": {
+                      "type": "string"
+                    },
+                    "format": {
+                      "type": "string"
+                    },
+                    "description": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            ],
+            "description": "For composite fields, breakdown of component parts"
+          }
+        }
+      }
+    },
+    "field_ordering": {
+      "type": "object",
+      "description": "Field ordering rules and constraints",
+      "required": ["description", "mandatory_sequence", "optional_sequences"],
+      "properties": {
+        "description": {
+          "type": "string"
+        },
+        "mandatory_sequence": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "Ordered list of mandatory field tags"
+        },
+        "optional_sequences": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "properties": {
+              "tags": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "position": {
+                "type": "string"
+              },
+              "notes": {
+                "type": "string"
+              }
+            }
+          },
+          "description": "Optional field groups and their positioning constraints"
+        }
+      }
+    }
+  }
+}
