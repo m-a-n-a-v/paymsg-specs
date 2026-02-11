@@ -635,3 +635,75 @@ Files changed:
 - The same mapping.schema.json from SPEC-012 works perfectly for MT940/camt.053, confirming reusable design across all MT/MX message pair mappings
 - Statement messages have more complex repeating structures than payment messages but follow same mapping patterns
 ---
+## 2026-02-10 - SPEC-015
+- Implemented MT942 to camt.052.001.10 field mapping definitions
+- Created mappings/mt942_camt052.json with comprehensive bidirectional field mappings (540+ lines)
+- Documented 38 mapping entries covering all major MT942 fields to camt.052 elements:
+  - Field 20 (Transaction Reference) -> Rpt/Id
+  - Field 25/25P (Account Identification) -> Rpt/Acct/Id with IBAN detection and BIC split
+  - Field 28C (Report Number/Sequence Number) -> Rpt/LglSeqNb + Rpt/ElctrncSeqNb split mapping
+  - Field 13D (Date/Time Indication) -> Rpt/CreDtTm with YYMMDD+HHMM to ISO 8601 conversion
+  - Field 34F (Floor Limit Indicator) -> Rpt/RptgSrc/Prtry or Rpt/AddtlRptInf (derived, no direct MX equivalent)
+  - Field 61 (Statement Line - repeating) -> Rpt/Ntry with complex subfield parsing identical to MT940:
+    - Value date, entry date, D/C mark, funds code, amount, transaction type, customer reference, bank reference, supplementary details
+  - Field 86 (Information to Account Owner - repeating) -> Rpt/Ntry/NtryDtls/TxDtls/RmtInf/Ustrd or RltdPties (conditional parsing)
+  - Field 90D (Number and Sum of Debit Entries) -> Rpt/TxsSummary/TtlDbtNtries with NbOfNtries + Sum + Ccy split
+  - Field 90C (Number and Sum of Credit Entries) -> Rpt/TxsSummary/TtlCdtNtries with NbOfNtries + Sum + Ccy split
+- Documented 3 MT-only fields that have unique format or semantic differences:
+  - Field 28C combines report number and sequence in single field (MT) vs separate elements (MX)
+  - Field 34F floor limit has no standard MX equivalent (can map to proprietary or additional info)
+  - Field 13D uses YYMMDD+HHMM format with + separator vs ISO 8601 date-time
+- Documented 7 MX-only fields that have no MT equivalent:
+  - GrpHdr/MsgId: generate UUID at translation time
+  - GrpHdr/CreDtTm: use field 13D if present or current timestamp
+  - GrpHdr/MsgRcpt: derive from configuration or omit
+  - Rpt/CreDtTm: use field 13D date/time indication
+  - Rpt/Acct/Ccy: derive from field 34F or 90D/90C currency
+  - Rpt/Ntry/NtryDtls/Btch: omit (MT942 has no batch concept)
+  - Rpt/TxsSummary/TtlNtries: calculate as sum of debit + credit counts from 90D + 90C
+- Included 12 mapping_notes covering key transformation rules:
+  - Character set conversion (SWIFT ASCII to Unicode)
+  - Decimal separator conversion (comma to period)
+  - Date format conversion (YYMMDD to YYYY-MM-DD)
+  - Time format conversion (YYMMDD+HHMM to ISO 8601 date-time)
+  - NO opening/closing balances in MT942 (key difference from MT940)
+  - Floor limit concept: only transactions above threshold listed in field 61, but ALL included in 90D/90C
+  - Summary totals (90D/90C) map directly to camt.052 TxsSummary
+  - Field 61 and 86 structures identical to MT940
+- Added key_differences_from_mt940_camt053 section documenting:
+  - Interim/intraday vs end-of-day reporting distinction
+  - No balance fields in MT942 (focus on transaction activity only)
+  - Floor limit concept unique to MT942
+  - Summary totals provide complete picture of ALL transactions (above and below floor limit)
+  - Date/time indication (13D) critical for intraday reporting with multiple messages per day
+  - Field 61/86 identical to MT940 (same parsing logic)
+  - Better TxsSummary alignment: MT942 90D/90C map directly vs MT940 requiring calculation
+  - Operational use case: real-time cash management vs reconciliation
+- All mapping entries include transform_type, direction, data_loss_risk, transform_details, notes
+- Included truncation_rule for MX->MT direction where field lengths differ
+- Included examples for key transformations (field 13D time conversion, 90D/90C splitting)
+- Validated JSON file with jq (100% valid)
+- Reused mappings/mapping.schema.json from SPEC-012 (confirmed schema is reusable across all MT/MX pairs)
+
+Files changed:
+- mappings/mt942_camt052.json (new, 542 lines)
+- scripts/ralph/prd.json (updated SPEC-015 passes: true)
+
+**Learnings for future iterations:**
+- MT942 is fundamentally the intraday/interim version of MT940 - same field 61/86 structure but different reporting model
+- Key architectural difference: MT942 has NO balance fields (60F/60M/62F/62M) - focus is purely on transaction activity reporting
+- Floor limit concept (field 34F) is unique to MT942: sets threshold for individual listing to reduce message size on high-volume accounts
+- Transactions below floor limit are NOT listed in field 61 but ARE included in summary totals (90D/90C) - this is critical for completeness
+- Field 90D (debit totals) and 90C (credit totals) provide the complete transaction picture: number of entries + sum of amounts for ALL transactions
+- camt.052 TxsSummary maps more directly to MT942 than camt.053 to MT940 because MT942 already has summary totals (90D/90C) built in
+- Field 13D provides precise intraday timestamp (YYMMDD+HHMM) - critical since multiple MT942 messages may be sent for same account during single business day
+- Time conversion from YYMMDD+HHMM (local time) to ISO 8601 date-time requires timezone handling - timezone must be added or assumed
+- Field 61 structure is 100% identical to MT940: value date (YYMMDD), optional entry date (MMDD), D/C mark, optional funds code, amount, transaction type (4 chars), customer ref (16x), optional bank ref (//16x), optional supplementary details (34x on continuation line)
+- Field 86 structure is 100% identical to MT940: up to 6 lines x 65 chars = max 390 chars, unstructured or bank-proprietary structured format with ?NN codes
+- The same JSON mapping schema from SPEC-012 works perfectly for MT942/camt.052, confirming reusable design across all MT/MX message pairs
+- MT942/camt.052 use case is operational (real-time treasury, liquidity monitoring, fraud detection) vs MT940/camt.053 which is reconciliation-focused
+- MT942 can be sent multiple times per day at different times, unlike MT940 which is typically once at end of day
+- When translating MX to MT, TtlNtries (total entries) must be split into separate debit (90D) and credit (90C) counts - cannot have single total in MT942
+- Floor limit information (34F) has no standard field in camt.052 - must use proprietary elements or additional report info, which may lose semantic precision
+- The mapping pattern from MT940->camt.053 applies almost 1:1 to MT942->camt.052 with adjustments for balance fields -> summary totals substitution
+---

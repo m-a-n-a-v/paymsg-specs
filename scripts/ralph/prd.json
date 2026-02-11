@@ -243,7 +243,7 @@
         "Document data loss scenarios in both directions"
       ],
       "priority": 15,
-      "passes": false,
+      "passes": true,
       "notes": "Very similar to MT940/camt.053 but for intraday reporting."
     },
     {
