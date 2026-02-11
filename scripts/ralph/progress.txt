@@ -312,3 +312,63 @@ Files changed:
 - Use case distinction: MT942 for real-time treasury management and fraud detection, MT940 for end-of-day reconciliation
 - The same JSON schema structure from MT103 works perfectly for MT942, confirming the reusable design pattern across all MT message types
 ---
+
+## 2026-02-10 - SPEC-010
+- Implemented MT message block structure specification
+- Created mt-specs/block_structure.json with comprehensive documentation of all 5 blocks (688 lines)
+- Documented Block 1 (Basic Header):
+  - Format: {1:F01BANKBICAXXX0000000000}
+  - Field positions: application_id (F), service_id (01/21), logical_terminal_address (12 chars with BIC + logical terminal + branch), session_number (4 digits), sequence_number (6 digits)
+  - Complete subfield breakdown for BIC structure within logical terminal address
+- Documented Block 2 (Application Header):
+  - Two variants: Input (I) and Output (O)
+  - Input format: {2:I103BANKBICAXXXXN} with message_type, destination_address, priority, optional delivery_monitoring and obsolescence_period
+  - Output format: {2:O1031200231115BANKBICAXXXX...N} with message_type, input_time, MIR (Message Input Reference with date + sender BIC + session + sequence), output_date, output_time, priority
+  - Detailed MIR subfield structure for unique message identification
+- Documented Block 3 (User Header):
+  - Optional tag-value pair format: {3:{TAG:VALUE}{TAG:VALUE}...}
+  - 11 common tags documented: 103 (Banking Priority), 108 (MUR), 111 (Service Type), 113 (Banking Priority alt), 115 (Addressee Info), 119 (Validation Flag), 121 (UETR), 165 (Payment Controls), 423 (Balance Checkpoint), 424 (Related Reference), 433 (Sanctions Screening)
+  - SWIFT gpi UETR (tag 121) format and usage explained
+  - Tag usage varies by message type and service requirements
+- Documented Block 4 (Text Block):
+  - Mandatory message content block with tag-value field format
+  - Field tag format: :NN[a]: (2 digits + optional letter)
+  - CRLF (\r\n) line separators between fields
+  - Multi-line field continuation rules (no tag prefix on continuation lines)
+  - Field option letters explained (A/B/C/D/F/K for different party identification formats)
+  - SWIFT character sets X, Y, Z with usage guidelines
+  - Closing delimiter: \r\n-}
+- Documented Block 5 (Trailer):
+  - Optional system/user tag-value pairs format: {5:{TAG:VALUE}{TAG:VALUE}...}
+  - 11 common tags documented: CHK (Checksum), TNG (Training), PDE (Possible Duplicate Emission), PDM (Possible Duplicate Message), DLM (Delayed Message), MRF (Message Reference), SYS (System Originated), MAC (Message Authentication Code), PAC (Proprietary Authentication Code), SAC (Supplementary Authentication Code), ISS (Information for Receiving Institution)
+  - Explained which tags are system-generated vs user-provided
+  - Training vs production message markers
+- Included complete message structure rules and validation guidelines
+- Provided full MT103 example with all 5 blocks and detailed explanation
+- Documented character encoding requirements (ASCII subset, CRLF line endings)
+- Comprehensive validation rules covering block ordering, mandatory blocks, BIC validation, character sets, field options, production vs test messages
+- Validated JSON file with jq
+
+Files changed:
+- mt-specs/block_structure.json (new, 688 lines)
+- scripts/ralph/prd.json (updated SPEC-010 passes: true)
+
+**Learnings for future iterations:**
+- MT message block structure is universal across all MT message types (103, 202, 940, 942, etc.)
+- Block 1 and Block 2 are network-level metadata, while Block 4 contains business data
+- Input (I) vs Output (O) distinction in Block 2: Input = sending to SWIFT, Output = receiving from SWIFT
+- MIR (Message Input Reference) in Block 2 output format uniquely identifies every SWIFT message globally: YYMMDD + BIC(12) + session(4) + sequence(6) = 28 characters
+- Block 3 tags support SWIFT gpi (Global Payments Innovation): tag 121 (UETR) is mandatory for gpi messages and uses UUID format
+- Tag 108 (MUR - Message User Reference) commonly used by corporates for payment tracking but is optional
+- Block 4 field tags follow :NN[a]: format where letter indicates option (A/B/C/D/F/K)
+- Field option letters have semantic meaning: A=BIC, B=Location, C=Party Identifier, D=Name&Address, F=Structured, K=Account+Name&Address
+- CRLF (\r\n) is mandatory in Block 4, not just LF - this is a SWIFT requirement
+- Multi-line field values continue on next line WITHOUT a tag prefix
+- Block 5 is mostly system-generated: CHK (checksum) always added by SWIFT, TNG (training) marks test messages
+- Duplicate detection tags (PDE, PDM) help prevent double-processing of payments
+- Authentication tags (MAC, PAC, SAC) support bilateral security agreements between institutions
+- Character set restrictions: X (basic alphanumeric), Y (uppercase + extended), Z (extended with CRLF)
+- Logical terminal position 12 in Block 1: A-Z = production, X = test - critical for environment identification
+- Block ordering is strict: 1, 2, [3], 4, [5] where brackets indicate optional blocks
+- This specification is reference infrastructure for all MT message parsers - reusable across all message types
+---

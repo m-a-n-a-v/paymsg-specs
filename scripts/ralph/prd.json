@@ -160,7 +160,7 @@
         "Include character set rules: which characters are valid in each block"
       ],
       "priority": 10,
-      "passes": false,
+      "passes": true,
       "notes": "This is shared infrastructure used by all MT parsers."
     },
     {
