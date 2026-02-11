@@ -951,3 +951,206 @@ Files changed:
 - Instructions for agents (InstrForCdtrAgt, InstrForNxtAgt) use code+text format
 - The .meta.json format is flexible and should document not just pass/fail but which specific business rules are expected to pass or fail
 ---
+
+## 2026-02-10 - SPEC-020
+- Implemented sample test messages for MT202, MT940, and MT942 message types
+- Created MT202 test files (3 messages + 3 .meta.json):
+  - minimal_valid.mt: Minimal MT202 with only mandatory fields (20, 21, 32A, 58A)
+  - full_valid.mt: Complete MT202 with all optional fields including Block 3 (MUR, UETR), correspondent banking chain (52A, 53A, 56A, 57A, 58A), field 72 with structured codes, Block 5 (CHK)
+  - interbank_transfer.mt: UK to Japan transfer using mixed field options (52D, 57A, 58D) with IBAN in field 57A
+- Created MT940 test files (3 messages + 3 .meta.json):
+  - minimal_valid.mt: Minimal MT940 with no transactions (opening balance = closing balance)
+  - multi_statement_line.mt: 6 transaction lines demonstrating repeating field 61+86 patterns with various transaction types (NTRF, NSTD, NCHK, NMSC, NDDT), structured field 86 with ?20/?32/?60 subfield codes, field 64 (Closing Available Balance)
+  - month_end.mt: Month-end statement using field 25P (Account with BIC), multiple field 65 (Forward Available Balance) entries for future date projections
+- Created MT942 test files (2 messages + 2 .meta.json):
+  - minimal_valid.mt: Minimal MT942 with only mandatory fields (20, 25, 28C)
+  - intraday_report.mt: Complete interim report with field 34F (Floor Limit EUR 10,000), field 13D (Date/Time 14:30), 3 transaction lines above floor limit, fields 90D/90C showing 20 total transactions (8 debits, 12 credits) demonstrating floor limit concept
+- All 16 files (8 .mt + 8 .meta.json) created with proper SWIFT MT format
+- All .meta.json files validated with jq (100% valid JSON)
+- MT messages use correct block structure: {1:...}{2:...}[{3:...}]{4:...}[{5:...}]
+- All messages use realistic but fictional data with valid BICs (DEUTDEFF, BNPAFRPP, CHASUS33, BOFAUS3N, HSBCGB2L, SMBCJPJT)
+- All messages use proper CRLF line endings within Block 4 fields
+- Committed all changes with proper message format
+
+Files changed:
+- testdata/mt/mt202/minimal_valid.mt (new)
+- testdata/mt/mt202/minimal_valid.mt.meta.json (new)
+- testdata/mt/mt202/full_valid.mt (new)
+- testdata/mt/mt202/full_valid.mt.meta.json (new)
+- testdata/mt/mt202/interbank_transfer.mt (new)
+- testdata/mt/mt202/interbank_transfer.mt.meta.json (new)
+- testdata/mt/mt940/minimal_valid.mt (new)
+- testdata/mt/mt940/minimal_valid.mt.meta.json (new)
+- testdata/mt/mt940/multi_statement_line.mt (new)
+- testdata/mt/mt940/multi_statement_line.mt.meta.json (new)
+- testdata/mt/mt940/month_end.mt (new)
+- testdata/mt/mt940/month_end.mt.meta.json (new)
+- testdata/mt/mt942/minimal_valid.mt (new)
+- testdata/mt/mt942/minimal_valid.mt.meta.json (new)
+- testdata/mt/mt942/intraday_report.mt (new)
+- testdata/mt/mt942/intraday_report.mt.meta.json (new)
+- scripts/ralph/prd.json (updated SPEC-020 passes: true)
+
+**Learnings for future iterations:**
+- MT202 is bank-to-bank only: field 21 (Related Reference) is mandatory and typically references the underlying customer payment (MT103 field 20)
+- MT202 field 72 often contains structured codes for cover payments: /INS/ (intermediary instructions), /ACC/ (account details), /BNF/ (beneficiary info)
+- MT202 correspondent banking chain: fields 52 (ordering institution), 53 (sender's correspondent), 54 (receiver's correspondent), 56 (intermediary), 57 (account with), 58 (beneficiary institution)
+- MT940 field 61 (Statement Line) has complex structure: value date (YYMMDD), optional entry date (MMDD), D/C mark, optional funds code, amount, transaction type (4 chars), customer ref (16x), optional bank ref (//16x), optional supplementary details (34x on continuation line)
+- MT940 field 86 (Information to Account Owner) follows field 61 and uses bank-proprietary structured formats with ?NN subfield codes: ?20 (description), ?32 (party name), ?60 (account)
+- MT940 balance consistency rule: closing balance = opening balance + sum(credits) - sum(debits) from all field 61 entries
+- MT940 field 25 vs 25P: field 25 contains account number only, field 25P contains BIC/Account (one must be present, not both)
+- MT940 field 60F/60M and 62F/62M: F (Final) for first/last statement of day, M (Intermediate) for intraday statements (one of each pair must be present, not both)
+- MT940 field 64 (Closing Available Balance) shows funds available after holds/reserves, may be less than field 62 closing balance
+- MT940 field 65 (Forward Available Balance) can repeat for multiple future dates showing projected balances
+- MT940 transaction type codes: first char N (SWIFT) or F (non-SWIFT), then 3-char code (NCHK=check, NTRF=transfer, NSTD=standing order, NDDT=direct debit, NMSC=miscellaneous)
+- MT942 is the intraday/interim version of MT940: NO balance fields (60F/60M/62F/62M), focus on transaction activity only
+- MT942 floor limit concept (field 34F): only transactions above this amount are listed in field 61, but ALL transactions are included in summary totals (90D/90C)
+- MT942 field 90D (Number and Sum of Debit Entries) and 90C (Number and Sum of Credit Entries) provide complete totals including transactions below floor limit
+- MT942 field 13D (Date/Time Indication) format: YYMMDD+HHMM with + separator (local time), critical for intraday reporting with multiple messages per day
+- MT942 field 61 and 86 structures are identical to MT940: same parsing logic applies
+- MT942 can be sent multiple times per day (indicated by statement number in field 28C), unlike MT940 which is typically once at end of day
+- MT test message format: use literal \r\n within Block 4 field content (not actual line breaks in the file), proper block delimiters {1:...}{2:...}{4:...}
+- Decimal amounts in MT use comma separator (1234,56) not period - this differs from MX format (1234.56)
+- All .meta.json files should document: test_name, message_type, description, validation_expected, test_coverage array, business_rules_expected_to_pass/fail arrays, detailed notes
+- Floor limit test (MT942 intraday_report.mt) effectively demonstrates the concept: 3 transactions listed (above EUR 10k), but totals show 20 total transactions
+- Statement test (MT940 multi_statement_line.mt) effectively demonstrates repeating 61+86 pattern with 6 diverse transaction types
+- Future iterations should follow same patterns for MX test messages (pacs.009, camt.052, camt.053) to ensure consistency
+---
+
+## 2026-02-10 - SPEC-021
+- Implemented sample MX test messages for pacs.009, camt.052, and camt.053 message types
+- Created pacs.009 test files (2 messages + 2 .meta.json):
+  - minimal_valid.xml: Minimal pacs.009 with only required elements (GrpHdr + CdtTrfTxInf with mandatory fields)
+  - fi_transfer.xml: Complete institutional transfer (DE->US) with intermediary, HIGH priority, gpi tracking (UETR), Fedwire clearing, settlement time indication, instructions for next agent
+- Created camt.053 test files (3 messages + 3 .meta.json):
+  - minimal_valid.xml: Minimal statement with only opening and closing balances (no transactions, opening = closing)
+  - multi_entry.xml: 6 transaction entries with various types (NTRF, NSTD, NCHK, NDDT, NMSC), TxsSummary, closing available balance, balance consistency validation
+  - daily_statement.xml: Complete daily statement (UK account with HSBC) with 3 entries (credit, debit, reversal with RvslInd=true), multiple balance types (OPBD, CLBD, CLAV), multiple FWAV (forward available) for future dates (Feb 12, Feb 16)
+- Created camt.052 test files (2 messages + 2 .meta.json):
+  - minimal_valid.xml: Minimal interim report with only required elements (no balances, no entries)
+  - intraday_report.xml: Complete intraday report demonstrating floor limit concept (EUR 5,000), legal sequence number (3rd report of day), TxsSummary showing 28 total transactions but only 4 listed above floor limit, precise booking timestamps (date-time), pending entry status (PDNG)
+- All 14 files (7 .xml + 7 .meta.json) created with proper ISO 20022 namespaces
+- All .meta.json files validated with jq (100% valid JSON)
+- Committed all changes with proper message format
+
+Files changed:
+- testdata/mx/pacs.009/minimal_valid.xml (new)
+- testdata/mx/pacs.009/minimal_valid.xml.meta.json (new)
+- testdata/mx/pacs.009/fi_transfer.xml (new)
+- testdata/mx/pacs.009/fi_transfer.xml.meta.json (new)
+- testdata/mx/camt.053/minimal_valid.xml (new)
+- testdata/mx/camt.053/minimal_valid.xml.meta.json (new)
+- testdata/mx/camt.053/multi_entry.xml (new)
+- testdata/mx/camt.053/multi_entry.xml.meta.json (new)
+- testdata/mx/camt.053/daily_statement.xml (new)
+- testdata/mx/camt.053/daily_statement.xml.meta.json (new)
+- testdata/mx/camt.052/minimal_valid.xml (new)
+- testdata/mx/camt.052/minimal_valid.xml.meta.json (new)
+- testdata/mx/camt.052/intraday_report.xml (new)
+- testdata/mx/camt.052/intraday_report.xml.meta.json (new)
+- scripts/ralph/prd.json (updated SPEC-021 passes: true)
+
+**Learnings for future iterations:**
+- pacs.009 is bank-to-bank institutional credit transfer: uses FICdtTrf root element, no customer parties (only financial institutions)
+- pacs.009 creditor is the beneficiary institution (Cdtr/FinInstnId/BICFI), not a customer like in pacs.008
+- pacs.009 namespace: urn:iso:std:iso:20022:tech:xsd:pacs.009.001.10 (note version 10)
+- camt.053 is end-of-day statement: uses BkToCstmrStmt root element, MUST have opening and closing balances (OPBD/CLBD)
+- camt.053 namespace: urn:iso:std:iso:20022:tech:xsd:camt.053.001.10 (note version 10)
+- camt.053 balance types: OPBD (opening booked), CLBD (closing booked), CLAV (closing available), FWAV (forward available)
+- camt.053 balance subtypes: FINAL (end-of-day final) vs INTERIM (intraday intermediate)
+- camt.053 balance consistency rule: closing = opening + sum(credits) - sum(debits) from all Ntry elements
+- camt.053 forward available balances (FWAV) can repeat for multiple future dates showing projected balances
+- camt.053 TxsSummary provides totals: TtlNtries, TtlCdtNtries, TtlDbtNtries with counts and sums
+- camt.052 is interim/intraday report: uses BkToCstmrAcctRpt root element, NO balance fields (focus on transaction activity only)
+- camt.052 namespace: urn:iso:std:iso:20022:tech:xsd:camt.052.001.10 (note version 10)
+- camt.052 floor limit concept: RptgSrc/Prtry can indicate floor limit, only transactions above threshold listed in Ntry, but TxsSummary includes ALL transactions
+- camt.052 legal sequence number (LglSeqNb) indicates which report of the day (1st, 2nd, 3rd, etc.)
+- camt.052 booking timestamps use DtTm (date-time) format for precise intraday timing, not just Dt (date)
+- camt.052 entry status codes: BOOK (booked/settled), PDNG (pending/held), others possible
+- All MX statement/report messages use Ntry (entry) repeating structure similar to MT940/MT942 field 61
+- Entry CdtDbtInd indicates direction: CRDT (credit/incoming), DBIT (debit/outgoing)
+- Entry amounts are always positive - direction indicated by CdtDbtInd field
+- RvslInd=true flag indicates reversal entry (equivalent to RC/RD in MT940 field 61)
+- BkTxCd/Prtry/Cd preserves SWIFT Bank Transaction Codes from MT messages (NTRF, NSTD, NCHK, NDDT, NMSC)
+- Related parties in entries: Dbtr/DbtrAcct for who paid (on credit entries), Cdtr/CdtrAcct for who received (on debit entries)
+- UETR (UUID format) used in entries for gpi transaction tracking
+- AddtlNtryInf provides free-text additional information about entries (similar to MT940 field 86)
+- Balance calculation consistency is critical: all test messages validated with manual calculation
+- Semantic equivalence to MT counterparts maintained: pacs.009 ≈ MT202, camt.053 ≈ MT940, camt.052 ≈ MT942
+- Test metadata should document floor limit concept clearly when demonstrating it (visible vs total transactions)
+- All ISO 20022 namespaces must include exact version (001.10) and message type
+---
+
+## 2026-02-10 - SPEC-022
+- Implemented translation test pairs for all MT<->MX message type combinations
+- Created testdata/translation_pairs/ directory structure with subdirectories for each message pair type
+- Created 3 MT103/pacs.008 translation pairs:
+  * pair1_sepa_transfer: SEPA EUR credit transfer with UETR tracking, shared charges, remittance info
+  * pair2_usd_wire: USD cross-border wire with intermediary banks, OUR charges, sender's charges declared
+  * pair3_minimal: Minimal payment with only mandatory fields, no account numbers
+- Created 2 MT940/camt.053 translation pairs:
+  * pair1_daily_statement: End-of-day statement with 3 transactions (credits and debits), opening/closing/available balances
+  * pair2_minimal: Zero-activity statement with only balances, no transactions
+- Created 1 MT202/pacs.009 translation pair:
+  * pair1_interbank: USD interbank transfer with two intermediary banks, related reference field
+- Created 1 MT942/camt.052 translation pair:
+  * pair1_intraday: Interim transaction report with timestamp, 2 entries, summary totals (90C/90D fields)
+- Each pair contains 5 files:
+  * source.mt - MT format message
+  * expected.xml - Expected MX translation from MT
+  * source.xml - MX format message
+  * expected.mt - Expected MT translation from MX
+  * pair.meta.json - Comprehensive metadata documenting the translation
+- Each pair.meta.json documents:
+  * fields_mapped_1_to_1: Direct field mappings between formats
+  * fields_split: One MT field splitting into multiple MX elements (e.g., field 32A -> date + amount)
+  * fields_merged: Multiple MX elements merging into one MT field
+  * fields_transformed: Lookups and conversions (e.g., SHA->SHAR, BIC8->BIC11)
+  * fields_defaulted_mt_to_mx: MX fields defaulted when translating from MT (e.g., CreDtTm, NbOfTxs)
+  * fields_defaulted_mx_to_mt: MT fields defaulted when translating from MX (rare)
+  * fields_lost_mt_to_mx: Information lost going MT->MX (e.g., Block 1 session numbers)
+  * fields_lost_mx_to_mt: Information lost going MX->MT (e.g., timestamps, message IDs)
+  * round_trip_lossless: Boolean indicating if round-trip is lossless
+  * round_trip_notes: Detailed analysis of round-trip behavior
+  * validation_notes: Format-specific validation considerations
+- All messages use realistic BICs from major banks: DEUTDEFF, BNPAFRPP, CHASUS33, HSBCGB2L, IRVTUS3N, COBADEFF
+- All IBANs are valid (pass Mod-97 check): DE, FR, GB, US examples
+- All party names and data are fictional but realistic
+- Validated all JSON files with jq (all pass)
+- Total files created: 35 files (7 pairs × 5 files per pair)
+
+Files changed:
+- testdata/translation_pairs/mt103_pacs008/ (15 files: 3 pairs)
+- testdata/translation_pairs/mt940_camt053/ (10 files: 2 pairs)
+- testdata/translation_pairs/mt202_pacs009/ (5 files: 1 pair)
+- testdata/translation_pairs/mt942_camt052/ (5 files: 1 pair)
+- scripts/ralph/prd.json (updated SPEC-022 passes: true)
+
+**Learnings for future iterations:**
+- Translation pairs are the gold standard for testing bidirectional MT<->MX conversion
+- Each pair demonstrates semantic equivalence: same payment/statement, but in two different formats
+- MT to MX typically requires defaulting: CreDtTm (timestamps), NbOfTxs, MsgId, etc.
+- MX to MT typically loses precision: timestamps become dates, message-level IDs may be lost
+- Key transformations to document:
+  * Field 32A splits: YYMMDD + CCY + amount -> separate date and amount elements
+  * Field 71A lookup: SHA->SHAR, OUR->DEBT, BEN->CRED
+  * BIC normalization: BIC8 expands to BIC11 with XXX for MX
+  * Field 50K/59 address parsing: first line = name, rest = address + country extraction
+  * Field 61 parsing: complex format with date, C/D, amount, type, reference
+  * Field 86 structured tags: ?20=RmtInf, ?32=party name, ?60=account
+- MT940 vs MT942 key differences:
+  * MT940: end-of-day, has 60F/62F balances, no 13D timestamp, no 90C/90D summary
+  * MT942: intraday, has 13D timestamp, 34F balance, 90C/90D summary, no opening/closing
+- MT103 vs MT202 key differences:
+  * MT103: customer payment, has field 50/59 customers, field 71A charges, field 70 remittance
+  * MT202: interbank cover, only field 52/58 institutions, no customer fields, no charges/remittance
+- Round-trip considerations:
+  * MT->MX->MT generally lossless for payment data (loses envelope metadata)
+  * MX->MT->MX loses timestamp precision (time->date) and potentially message-level IDs
+  * Minimal examples have fewer lossy transformations (less structural complexity)
+- pair.meta.json is critical documentation: explains every mapping decision, data loss, defaulting
+- Translation pairs enable round-trip testing: MT->MX->MT and MX->MT->MX
+- Pairs should cover variety: minimal, typical, complex scenarios for comprehensive testing
+- Statement messages (MT940/942) have repeating field 61+86 patterns, balance arithmetic must validate
+- Balance calculations documented in metadata help verify correctness
+---

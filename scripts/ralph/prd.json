@@ -345,7 +345,7 @@
         "Each test file has a companion .meta.json"
       ],
       "priority": 21,
-      "passes": false,
+      "passes": true,
       "notes": "Ensure semantic equivalence with MT counterparts where applicable for round-trip testing."
     },
     {
@@ -363,7 +363,7 @@
         "All pairs must be semantically consistent (same payment, same amounts, same parties)"
       ],
       "priority": 22,
-      "passes": false,
+      "passes": true,
       "notes": "These pairs are the gold standard for testing the translation engine. Quality over quantity."
     },
     {
