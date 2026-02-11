@@ -381,7 +381,7 @@
         "Add a CI section to README.md explaining how to run validation"
       ],
       "priority": 23,
-      "passes": false,
+      "passes": true,
       "notes": "This is the quality gate. All future contributions must pass these checks."
     }
   ]

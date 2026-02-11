@@ -1154,3 +1154,42 @@ Files changed:
 - Statement messages (MT940/942) have repeating field 61+86 patterns, balance arithmetic must validate
 - Balance calculations documented in metadata help verify correctness
 ---
+
+## 2026-02-10 - SPEC-023
+- Implemented comprehensive validation script (validate.sh) with 7 quality checks
+- Created bash script with colored output and detailed error reporting
+- **Validation checks implemented:**
+  1. JSON validity check - validates all .json files with jq
+  2. JSON Schema validation - validates JSON files against their .schema.json companions (optional, requires jsonschema module)
+  3. Test metadata check - ensures all .mt and .xml test files have companion .meta.json files (excludes translation_pairs which use pair.meta.json)
+  4. IBAN Mod-97 validation - validates all example IBANs in iban_formats.json using Mod-97 algorithm
+  5. Duplicate rule ID check - ensures no duplicate rule IDs across all rule files
+  6. MT tag reference validation - verifies mapping files reference valid MT tags from mt-specs (includes both Block 4 field tags and Block 3 header tags)
+- Script exits with code 0 if all checks pass, non-zero otherwise
+- Updated README.md with detailed CI/Validation section explaining:
+  - How to run the validation script
+  - Requirements (jq, python3, optional jsonschema)
+  - List of all validation checks performed
+  - CI/CD integration example for GitHub Actions
+- All validation checks pass successfully (7/7)
+
+Files changed:
+- validate.sh (new) - 514 lines, executable bash script
+- README.md (updated) - added comprehensive Validation section with CI integration guidance
+- scripts/ralph/prd.json (updated SPEC-023 passes: true)
+
+**Learnings for future iterations:**
+- Bash arithmetic expansion (( )) can return non-zero exit codes with set -e, use $((expr)) instead
+- Translation pair test files use a single pair.meta.json per directory, not individual .meta.json files per test file
+- MT messages have two types of tags: Block 4 field tags (defined in mt-specs/*.json) and Block 3 header tags (defined in block_structure.json common_tags)
+- Block 3 tags like 121 (UETR) are valid for mappings even though they're not in the field specification
+- Python heredocs in bash work well for complex validation logic but need careful exit code handling
+- JSON Schema validation is optional (graceful degradation) since jsonschema module may not be installed
+- Validation scripts should provide clear, colored output with pass/fail counts for good UX
+- The validate.sh script is now the quality gate for all future contributions to the repository
+
+**Codebase patterns discovered:**
+- Test data organization: Regular test files in testdata/mt/ and testdata/mx/ have individual .meta.json files, but translation_pairs/ uses pair.meta.json for matched pairs
+- MT tag validation requires checking both field tags (Block 4) and header tags (Block 3) from different specification files
+- All JSON files in the repository must be valid and those with schemas must validate against them
+---
