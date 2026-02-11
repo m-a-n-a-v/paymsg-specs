@@ -277,7 +277,7 @@
         "Each rule has a unique ID following its message type pattern"
       ],
       "priority": 17,
-      "passes": false,
+      "passes": true,
       "notes": "These can be lighter than pacs.008 but must cover the key validation scenarios."
     },
     {

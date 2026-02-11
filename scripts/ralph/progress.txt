@@ -761,3 +761,72 @@ Files changed:
 - Expression language is intentionally simple and readable: suitable for JSON representation and human review
 - Future rule additions should follow same patterns: clear ID, category grouping, detailed description, actionable suggestion
 ---
+## 2026-02-10 - SPEC-017
+- Implemented business validation rules for pacs.009, camt.052, and camt.053 message types
+- Created rules/pacs009_rules.json (20 rules, 746 lines) for pacs.009.001.10 (Financial Institution Credit Transfer)
+  - Amount rules (2): positive amount, currency decimal precision
+  - Date rules (3): settlement date not in past, not more than 90 days future, creation timestamp validation
+  - Currency rules (1): ISO 4217 currency code validation
+  - BIC rules (4): instructing agent, instructed agent, creditor agent, intermediary agent BIC validation
+  - Party rules (2): creditor institution identification, creditor agent presence
+  - Reference rules (3): end-to-end ID, instruction ID, UETR UUID format
+  - Charge bearer rules (1): valid charge bearer codes (DEBT, CRED, SHAR, SLEV)
+  - Settlement rules (1): valid settlement method codes
+  - Header rules (2): message ID presence, transaction count consistency
+  - Regulatory rules (1): high-value transfer controls warning
+- Created rules/camt052_rules.json (13 rules, 434 lines) for camt.052.001.10 (Bank to Customer Account Report - Interim)
+  - Amount rules (2): positive entry amount, currency decimal precision
+  - Date rules (2): value date not in future, report creation timestamp validation
+  - Currency rules (1): ISO 4217 currency code validation
+  - IBAN rules (1): IBAN format validation when present
+  - Reference rules (2): report ID presence, entry reference presence
+  - Account rules (1): account identification presence
+  - Summary rules (4): debit/credit entry count consistency, debit/credit sum consistency
+- Created rules/camt053_rules.json (18 rules, 567 lines) for camt.053.001.10 (Bank to Customer Statement)
+  - Amount rules (3): positive entry amount, currency decimal precision, non-negative balance
+  - Date rules (3): value date not in future, booking date not in future, statement creation timestamp validation
+  - Currency rules (2): entry currency and balance currency ISO 4217 validation
+  - IBAN rules (1): IBAN format validation when present
+  - Reference rules (2): statement ID presence, entry reference presence
+  - Account rules (1): account identification presence
+  - Balance rules (3): opening balance presence, closing balance presence, balance consistency (opening + credits - debits = closing)
+  - Summary rules (3): total entry count consistency, debit sum consistency, credit sum consistency
+- All rule files follow the same schema (rules/rules.schema.json from SPEC-016)
+- Validated all JSON files with jq (100% valid)
+- Verified no duplicate rule IDs across all rule files (pacs008, pacs009, camt052, camt053)
+- All rule files exceed minimum requirements:
+  - pacs009: 20 rules (required: 15+) ✓
+  - camt052: 13 rules (required: 10+) ✓
+  - camt053: 18 rules (required: 15+) ✓
+
+Files changed:
+- rules/pacs009_rules.json (new, 746 lines, 20 rules)
+- rules/camt052_rules.json (new, 434 lines, 13 rules)
+- rules/camt053_rules.json (new, 567 lines, 18 rules)
+- scripts/ralph/prd.json (updated SPEC-017 passes: true)
+
+**Learnings for future iterations:**
+- pacs.009 validation focuses on institutional requirements: no customer parties, mandator references (EndToEndId, InstrId)
+- pacs.009 has no charge-related fields by default (unlike pacs.008) - charge bearer may be present but is optional
+- camt.052 (interim report) and camt.053 (statement) share many similar rules with key differences:
+  - camt.052 has NO balances (focus on transaction activity only) - uses TxsSummary instead
+  - camt.053 MUST have opening and closing balances with balance consistency validation
+  - Both require transaction summaries (debit/credit counts and sums) that must match actual entries
+- Balance consistency rule is critical for camt.053: closing = opening + sum(credits) - sum(debits)
+- TxsSummary validation ensures data integrity: counts and sums must match actual entries
+- Statement/report messages use Stmt/Rpt root elements (not payment message structures)
+- Entry amounts must always be positive - direction indicated by CdtDbtInd (CRDT/DBIT) field
+- Balance amounts use same pattern: positive amount + CdtDbtInd to indicate credit (positive) or debit (overdrawn)
+- Balance type codes distinguish different balance types: OPBD (opening booked), CLBD (closing booked), CLAV (closing available), FWAV (forward available)
+- Date validation differs for statements vs payments: statement dates must not be in future (historical data)
+- Entry references (NtryRef) are mandatory for reconciliation purposes in both camt.052 and camt.053
+- IBAN validation when present applies to both payment and statement messages
+- Rule categories help organize validation logic: amounts (AM), dates (DT), currencies (CY), BICs (BC), IBANs (IB), parties (PT), references (RF), charges (CH), settlement (SM), headers (GH), regulatory (RG), accounts (AC), balances (BAL), summaries (TS)
+- Severity levels distinguish critical errors from warnings: errors block processing, warnings suggest review
+- The same rules.schema.json works perfectly across all message types (pacs.008, pacs.009, camt.052, camt.053)
+- Expression language for conditions and assertions provides clear, declarative rule definitions
+- Suggestions provide actionable guidance for fixing validation failures
+- Examples clarify valid vs invalid data formats
+- References link rules to external standards (ISO 4217, ISO 9362, ISO 13616)
+- Rule ID patterns maintain consistency: MSGTYPE-CATNN format (message type + category + number)
+---
