@@ -197,7 +197,7 @@
         "Create mappings/mapping.schema.json validating the mapping format"
       ],
       "priority": 12,
-      "passes": false,
+      "passes": true,
       "notes": "This is the flagship translation pair. Must be thorough and accurate."
     },
     {

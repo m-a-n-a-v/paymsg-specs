@@ -414,3 +414,83 @@ Files changed:
 - When converting UTF-8 to SWIFT, always apply mappings before truncation to avoid cutting mid-character
 - JSON representation of special characters: use Unicode escape sequences (\uXXXX) to avoid parser confusion with raw UTF-8 characters like ", ", ', '
 ---
+
+## 2026-02-10 - SPEC-012
+- Implemented MT103 to pacs.008.001.10 field mapping definitions
+- Created mappings/mapping.schema.json (141 lines) - JSON Schema for validating MT/MX field mapping format
+  - Schema validates message_pair, mt_type, mx_type, mappings array structure
+  - Each mapping entry requires: mt_tag, mt_field_name, mx_path, transform_type, direction, data_loss_risk
+  - Supports optional fields: mt_option, transform_details, truncation_rule, default_value, validation_rules, examples, notes
+  - Includes mt_only_fields and mx_only_fields arrays for documenting fields without equivalents
+  - Transform types: direct (1:1), split (1->many), merge (many->1), lookup (code translation), derived (calculated), conditional (depends on context)
+  - Direction: mt_to_mx, mx_to_mt, both
+  - Data loss risk: none, possible, certain
+- Created mappings/mt103_pacs008.json (793 lines) - Comprehensive bidirectional field mappings
+  - Documented 41 field mappings covering all major MT103 fields to pacs.008 elements
+  - Field 20 (Transaction Reference) -> InstrId and conditionally EndToEndId
+  - Block 3 tag 121 (UETR) -> UETR element for gpi tracking
+  - Field 23B (Bank Operation Code) -> LclInstrm/Prtry
+  - Field 32A split mapping: date (YYMMDD) -> IntrBkSttlmDt (ISO date), currency+amount -> IntrBkSttlmAmt with decimal conversion (comma to period)
+  - Field 33B (Instructed Amount) -> InstdAmt with currency attribute
+  - Field 36 (Exchange Rate) -> XchgRate
+  - Field 50A/50F/50K (Ordering Customer options) -> Dbtr/DbtrAcct with option-specific parsing
+  - Field 52A/52D (Ordering Institution) -> DbtrAgt/FinInstnId
+  - Field 56A/56C/56D (Intermediary Institution) -> IntrmyAgt1/FinInstnId
+  - Field 57A/57B/57C/57D (Account With Institution) -> CdtrAgt/FinInstnId with all option variants
+  - Field 59/59A/59F (Beneficiary Customer options) -> Cdtr/CdtrAcct with IBAN detection and option parsing
+  - Field 70 (Remittance Information) -> RmtInf/Ustrd
+  - Field 71A (Details of Charges) -> ChrgBr with lookup table: BEN->CRED, OUR->DEBT, SHA->SHAR
+  - Field 71F (Sender's Charges) -> ChrgsInf with ChrgBr=DEBT, can repeat
+  - Field 71G (Receiver's Charges) -> ChrgsInf with ChrgBr=CRED
+  - Field 72 (Sender to Receiver Information) -> InstrForNxtAgt/InstrInf with truncation notes
+  - Field 77B (Regulatory Reporting) -> RgltryRptg/Dtls/Inf
+  - Documented 10 MT-only fields that have no MX equivalent (fields 51A, 53A/B/D, 54A/B/D, 55A/B/D)
+    - Reason: Correspondent banking model in MT103 (sender's correspondent, receiver's correspondent, third reimbursement) doesn't map to pacs.008 routing model
+  - Documented 10 MX-only fields that have no MT equivalent (GrpHdr elements, settlement account, service level)
+    - GrpHdr/MsgId: generate UUID at translation time
+    - GrpHdr/CreDtTm: use current timestamp or derive from field 13C if present
+    - GrpHdr/NbOfTxs: set to '1' for single MT103, count for batch
+    - GrpHdr/InstgAgt: extract from MT Block 1 sender BIC
+    - GrpHdr/InstdAgt: extract from MT Block 2 destination BIC
+    - CdtTrfTxInf/PmtTpInf/SvcLvl: derive from context (SEPA if EU+SHA, G001 if gpi)
+  - Included 8 mapping_notes covering key transformation rules:
+    - Character set conversion (SWIFT ASCII to Unicode)
+    - Field length differences and truncation requirements
+    - Decimal separator conversion (comma to period)
+    - BIC format consistency (8 or 11 chars)
+    - Charge bearer code lookup table
+    - Batch vs single transaction handling
+    - UETR end-to-end tracking
+  - Provided transform_details for complex mappings (split, merge, lookup, conditional)
+  - Included truncation_rule for MX->MT direction where MX allows longer values
+  - Added examples for key transformations (field 32A splitting, field 71A lookup)
+- All JSON files validated with jq (100% valid)
+- Committed changes with proper message format
+
+Files changed:
+- mappings/mapping.schema.json (new, 141 lines)
+- mappings/mt103_pacs008.json (new, 793 lines)
+- scripts/ralph/prd.json (updated SPEC-012 passes: true)
+
+**Learnings for future iterations:**
+- MT to MX field mapping is asymmetric: MT->MX is usually lossless (MX has more space), MX->MT requires truncation
+- pacs.008 has group header (GrpHdr) for batch metadata, MT103 is single transaction only
+- MT103 correspondent banking fields (51A, 53, 54, 55) don't map cleanly to pacs.008 - these represent older SWIFT routing model
+- Character set conversion is critical: MT uses SWIFT character sets (ASCII-based), MX supports full Unicode
+- Decimal separator differs: MT uses comma (1234,56), MX uses period (1234.56) - must convert in both directions
+- Date format conversion: MT uses YYMMDD (260210), MX uses ISO 8601 (2026-02-10) with century inference
+- BIC format is consistent across both: 8 or 11 characters following ISO 9362
+- Field 50 and 59 (ordering customer and beneficiary) have multiple option formats (A/F/K for 50, no suffix/A/F for 59) - each maps differently
+- Field 71A charge bearer codes are 3-letter in MT (BEN, OUR, SHA) but 4-letter in MX (CRED, DEBT, SHAR) - requires lookup table
+- UETR (Unique End-to-End Transaction Reference) from Block 3 tag 121 is critical for gpi tracking - maps directly to pacs.008 UETR element
+- Account parsing requires IBAN detection: if account matches IBAN format (2-letter country + 2 check digits), use IBAN element; otherwise use Othr/Id
+- Multi-line fields in MT (e.g., 50K, 59, 70) require parsing logic: optional account line (starts with /), name line(s), address line(s)
+- Field 72 (Sender to Receiver Information) often contains structured codes (/ACC/, /INS/, /BNF/) - should be parsed if present
+- Transform types provide semantic meaning: direct (simple copy), split (one field becomes multiple elements), merge (multiple fields combine), lookup (code translation), derived (calculated value), conditional (depends on other fields)
+- Direction matters: some mappings are unidirectional (mt_to_mx or mx_to_mt only) due to semantic differences
+- Data loss risk should be documented: none (full fidelity), possible (may lose data in edge cases), certain (data loss expected)
+- Truncation rules must specify max lengths: MT field lengths are generally shorter than MX, so MX->MT direction needs truncation
+- Examples are valuable: showing actual MT value -> MX value transformations clarifies complex mappings
+- Schema reusability: mapping.schema.json will be reused for MT202/pacs.009, MT940/camt.053, MT942/camt.052
+- Comprehensive documentation is essential: this mapping file is the reference for implementing the translation engine
+---
