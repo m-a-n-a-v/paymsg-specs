@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.009.001.10">
+  <FICdtTrf>
+    <GrpHdr>
+      <MsgId>MSGID-20260210-001</MsgId>
+      <CreDtTm>2026-02-10T09:30:00Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <TtlIntrBkSttlmAmt Ccy="EUR">1000.00</TtlIntrBkSttlmAmt>
+      <IntrBkSttlmDt>2026-02-10</IntrBkSttlmDt>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>DEUTDEFF</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>BNPAFRPP</BICFI>
+        </FinInstnId>
+      </InstdAgt>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>INSTR-20260210-001</InstrId>
+        <EndToEndId>E2E-20260210-001</EndToEndId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="EUR">1000.00</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2026-02-10</IntrBkSttlmDt>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>DEUTDEFF</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>BNPAFRPP</BICFI>
+        </FinInstnId>
+      </InstdAgt>
+      <Cdtr>
+        <FinInstnId>
+          <BICFI>BNPAFRPP</BICFI>
+        </FinInstnId>
+      </Cdtr>
+      <CdtrAgt>
+        <FinInstnId>
+          <BICFI>BNPAFRPP</BICFI>
+        </FinInstnId>
+      </CdtrAgt>
+    </CdtTrfTxInf>
+  </FICdtTrf>
+</Document>

@@ -1,0 +1,94 @@
+{
+  "test_name": "intraday_report",
+  "message_type": "camt.052.001.10",
+  "description": "Complete camt.052 interim intraday account report demonstrating floor limit concept, transaction summaries, and real-time reporting. Third report of the day (legal sequence 3) at 14:30.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Complete group header and report header",
+    "Legal sequence number (3 - third report of the day)",
+    "From/To date-time range (00:00 to 14:30 on 2026-02-10)",
+    "Account with owner name and servicer details",
+    "Reporting source with proprietary floor limit indicator (EUR 5,000)",
+    "Transaction summary totals (28 total entries: 18 credits, 10 debits)",
+    "Only 4 entries listed (above EUR 5,000 floor limit)",
+    "Summary totals include ALL 28 transactions (above and below floor limit)",
+    "Different entry statuses: BOOK (booked/settled) and PDNG (pending)",
+    "Precise booking timestamps (date-time, not just date)",
+    "Related parties with IBAN accounts",
+    "UETR tracking reference for gpi transfers",
+    "Additional entry information for pending transaction",
+    "No balance fields (key difference from camt.053)"
+  ],
+  "business_rules_expected_to_pass": [
+    "CAMT052-AM01: Positive entry amounts (all entries > 0)",
+    "CAMT052-AM02: Currency decimal precision (EUR = 2 decimals)",
+    "CAMT052-DT01: Value dates not in future (2026-02-10)",
+    "CAMT052-DT02: Valid report creation timestamp",
+    "CAMT052-CY01: Valid ISO 4217 currency code (EUR)",
+    "CAMT052-IB01: Valid IBAN format (FR, DE, GB IBANs pass Mod-97)",
+    "CAMT052-RF01: Report ID present",
+    "CAMT052-RF02: Entry references present for all entries",
+    "CAMT052-AC01: Account identification present",
+    "CAMT052-TS01: Debit entry count consistency (10 entries, sum EUR 59,500)",
+    "CAMT052-TS02: Credit entry count consistency (18 entries, sum EUR 245,000)",
+    "CAMT052-TS03: Debit sum consistency (visible entries: 25000 + 15000 = 40000, but total includes below-floor-limit entries = 59500)",
+    "CAMT052-TS04: Credit sum consistency (visible entries: 50000 + 75000 = 125000, but total includes below-floor-limit entries = 245000)"
+  ],
+  "business_rules_expected_to_fail": [],
+  "floor_limit_concept": {
+    "floor_limit": "EUR 5,000",
+    "total_transactions": 28,
+    "transactions_above_floor_limit": 4,
+    "transactions_below_floor_limit": 24,
+    "listed_entries": "Only 4 entries above EUR 5,000 are individually listed",
+    "summary_totals": "TxsSummary includes ALL 28 transactions (above and below floor limit)",
+    "visible_credit_sum": "EUR 125,000 (50000 + 75000 from listed entries)",
+    "total_credit_sum": "EUR 245,000 (includes EUR 120,000 from 16 unlisted small credits)",
+    "visible_debit_sum": "EUR 40,000 (25000 + 15000 from listed entries)",
+    "total_debit_sum": "EUR 59,500 (includes EUR 19,500 from 8 unlisted small debits)"
+  },
+  "transaction_details": {
+    "entry_1": {
+      "time": "09:15:23",
+      "type": "NTRF (Transfer) - CREDIT",
+      "amount": "EUR 50,000.00",
+      "status": "BOOK (booked)",
+      "from": "International Trading Corp (DE89370400440532013000)",
+      "description": "Trade settlement - Contract REF-2026-Q1-001",
+      "uetr": "a1b2c3d4-e5f6-4789-a012-3456789abcde"
+    },
+    "entry_2": {
+      "time": "10:45:12",
+      "type": "NTRF (Transfer) - DEBIT",
+      "amount": "EUR 25,000.00",
+      "status": "BOOK (booked)",
+      "to": "Manufacturing Supplies Ltd (GB82WEST12345698765432)",
+      "description": "Bulk purchase payment - Invoice BULK-2026-02"
+    },
+    "entry_3": {
+      "time": "12:20:45",
+      "type": "NTRF (Transfer) - CREDIT",
+      "amount": "EUR 75,000.00",
+      "status": "BOOK (booked)",
+      "from": "Enterprise Client Solutions GmbH (DE75512108001245126199)",
+      "description": "Project milestone payment - Phase 2 completion"
+    },
+    "entry_4": {
+      "time": "13:55:30",
+      "type": "NTRF (Transfer) - DEBIT",
+      "amount": "EUR 15,000.00",
+      "status": "PDNG (pending)",
+      "to": "Tax Authority - Corporate Division",
+      "description": "Q1 2026 corporate tax payment - pending clearance",
+      "additional_info": "Held for compliance verification - expected clearance by 16:00"
+    }
+  },
+  "intraday_context": {
+    "report_time": "14:30 (2:30 PM)",
+    "report_sequence": "3rd report of the day",
+    "period_covered": "00:00 to 14:30 (morning and early afternoon activity)",
+    "next_report_expected": "Typically at 16:00 or end of day",
+    "use_case": "Real-time treasury management, liquidity monitoring, fraud detection"
+  },
+  "notes": "This intraday report demonstrates typical real-time account reporting for 'Global Enterprises SA', a high-volume corporate treasury account with BNP Paribas. The floor limit of EUR 5,000 means only 4 high-value transactions are individually listed, but the summary totals reflect ALL 28 transactions that occurred from midnight to 14:30. This allows the bank to provide real-time visibility into major movements while keeping message size manageable for high-volume accounts. The pending entry (PDNG status) shows a EUR 15,000 tax payment held for compliance verification. This is the 3rd interim report of the day, indicating previous reports were sent earlier. This is semantically equivalent to an MT942 message with field 34F (floor limit), field 13D (14:30 timestamp), 4 field 61 entries above floor limit, and fields 90D/90C showing complete totals."
+}

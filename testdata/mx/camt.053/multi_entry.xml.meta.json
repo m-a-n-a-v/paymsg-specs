@@ -1,0 +1,92 @@
+{
+  "test_name": "multi_entry",
+  "message_type": "camt.053.001.10",
+  "description": "camt.053 Bank to Customer Statement with 6 transaction entries demonstrating various entry types. Shows repeating Ntry elements with different transaction codes and party details.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Complete group header and statement header",
+    "Legal sequence number and from/to date range",
+    "Account with owner name and servicer details",
+    "Multiple balance types (OPBD opening, CLBD closing, CLAV available)",
+    "Transaction summary totals (6 entries: 4 credits, 2 debits)",
+    "Repeating Ntry elements (6 entries) with different transaction types",
+    "NTRF (transfer) - 3 entries",
+    "NSTD (standing order) - 1 entry",
+    "NCHK (check) - 1 entry",
+    "NDDT (direct debit) - 1 entry",
+    "NMSC (miscellaneous) - 1 entry",
+    "Related parties (debtor/creditor with names and IBANs)",
+    "Entry references and end-to-end IDs",
+    "Remittance information (unstructured)",
+    "Balance consistency validation (opening + credits - debits = closing)"
+  ],
+  "business_rules_expected_to_pass": [
+    "CAMT053-AM01: Positive entry amounts (all entries > 0)",
+    "CAMT053-AM02: Currency decimal precision (EUR = 2 decimals)",
+    "CAMT053-AM03: Non-negative balance amounts",
+    "CAMT053-DT01: Value dates not in future",
+    "CAMT053-DT02: Booking dates not in future",
+    "CAMT053-DT03: Valid statement creation timestamp",
+    "CAMT053-CY01: Valid ISO 4217 currency codes for entries",
+    "CAMT053-CY02: Valid ISO 4217 currency codes for balances",
+    "CAMT053-IB01: Valid IBAN format (FR and DE IBANs pass Mod-97)",
+    "CAMT053-RF01: Statement ID present",
+    "CAMT053-RF02: Entry references present for all entries",
+    "CAMT053-AC01: Account identification present",
+    "CAMT053-BAL01: Opening balance present",
+    "CAMT053-BAL02: Closing balance present",
+    "CAMT053-BAL03: Balance consistency (15000.00 + 8000.00 - 1750.00 = 21250.00)",
+    "CAMT053-TS01: Total entry count consistency (6 entries)",
+    "CAMT053-TS02: Debit sum consistency (850.00 + 900.00 = 1750.00)",
+    "CAMT053-TS03: Credit sum consistency (2500.00 + 1500.00 + 3200.00 + 800.00 = 8000.00)"
+  ],
+  "business_rules_expected_to_fail": [],
+  "transaction_details": {
+    "entry_1": {
+      "type": "NTRF (Transfer)",
+      "amount": "EUR 2,500.00 credit",
+      "from": "Acme Corporation (DE89370400440532013000)",
+      "description": "Payment for invoice INV-2026-001"
+    },
+    "entry_2": {
+      "type": "NSTD (Standing Order)",
+      "amount": "EUR 1,500.00 credit",
+      "from": "Monthly Subscription Services Ltd",
+      "description": "Monthly standing order payment"
+    },
+    "entry_3": {
+      "type": "NCHK (Check)",
+      "amount": "EUR 850.00 debit",
+      "to": "Office Supplies Inc",
+      "check_number": "000123",
+      "description": "Check payment for office supplies"
+    },
+    "entry_4": {
+      "type": "NTRF (Transfer)",
+      "amount": "EUR 3,200.00 credit",
+      "from": "Global Trading Partners GmbH (DE75512108001245126199)",
+      "description": "Trade settlement payment"
+    },
+    "entry_5": {
+      "type": "NDDT (Direct Debit)",
+      "amount": "EUR 900.00 debit",
+      "to": "Utility Services Provider",
+      "mandate_id": "MANDATE-2026-001",
+      "description": "Direct debit for monthly utilities"
+    },
+    "entry_6": {
+      "type": "NMSC (Miscellaneous)",
+      "amount": "EUR 800.00 credit",
+      "description": "Interest credit for Q1 2026"
+    }
+  },
+  "balance_calculation": {
+    "opening_balance": "EUR 15,000.00",
+    "total_credits": "EUR 8,000.00 (2500 + 1500 + 3200 + 800)",
+    "total_debits": "EUR 1,750.00 (850 + 900)",
+    "net_change": "EUR 6,250.00",
+    "closing_balance": "EUR 21,250.00",
+    "available_balance": "EUR 20,500.00 (750 EUR held/reserved)"
+  },
+  "notes": "This statement demonstrates a typical business day for 'Société Exemple SARL' (a French company) with BNP Paribas. The account shows 6 different transaction types: incoming transfers from customers, a standing order credit, a check debit, a larger trade payment, a direct debit for utilities, and interest credit. The closing available balance (20,500.00) is less than the closing booked balance (21,250.00), indicating EUR 750 is held/reserved. This is semantically equivalent to an MT940 message with multiple field 61+86 repeating entries."
+}

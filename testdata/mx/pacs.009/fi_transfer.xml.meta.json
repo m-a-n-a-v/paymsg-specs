@@ -1,0 +1,50 @@
+{
+  "test_name": "fi_transfer",
+  "message_type": "pacs.009.001.10",
+  "description": "Complete pacs.009 Financial Institution Credit Transfer demonstrating interbank transfer with optional elements. High-value USD transfer from Deutsche Bank (Germany) to JPMorgan Chase (US) via Bank of America intermediary using Fedwire clearing.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Complete group header with settlement information",
+    "Settlement method (CLRG) and clearing system (FED - Fedwire)",
+    "Complete payment identification (InstrId, EndToEndId, TxId, UETR for gpi tracking)",
+    "Payment type information (HIGH priority, G001 gpi service level)",
+    "Settlement time indication with debit date/time",
+    "Intermediary agent (BOFAUS3N - Bank of America)",
+    "Structured creditor information with postal address",
+    "Creditor account (US account number format)",
+    "Instructions for next agent (PHOB code with free text)",
+    "Remittance information (unstructured)",
+    "Cross-border institutional transfer scenario"
+  ],
+  "business_rules_expected_to_pass": [
+    "PACS009-AM01: Positive amount validation (USD 250,000.00)",
+    "PACS009-AM02: Currency decimal precision (USD = 2 decimals)",
+    "PACS009-DT01: Settlement date not in past (2026-02-10)",
+    "PACS009-DT02: Settlement date not more than 90 days in future",
+    "PACS009-DT03: Valid creation timestamp",
+    "PACS009-CY01: Valid ISO 4217 currency code (USD)",
+    "PACS009-BC01: Valid instructing agent BIC (DEUTDEFF)",
+    "PACS009-BC02: Valid instructed agent BIC (CHASUS33)",
+    "PACS009-BC03: Valid creditor agent BIC (CHASUS33)",
+    "PACS009-BC04: Valid intermediary agent BIC (BOFAUS3N)",
+    "PACS009-PT01: Creditor institution present with full details",
+    "PACS009-PT02: Creditor agent present",
+    "PACS009-RF01: End-to-end ID present",
+    "PACS009-RF02: Instruction ID present",
+    "PACS009-RF03: UETR in valid UUID format",
+    "PACS009-SM01: Valid settlement method code (CLRG)",
+    "PACS009-GH01: Message ID present",
+    "PACS009-GH02: Transaction count consistency (1 CdtTrfTxInf, NbOfTxs=1)"
+  ],
+  "business_rules_expected_to_fail": [
+    "PACS009-RG01: High-value transfer controls (warning - amount exceeds 100,000)"
+  ],
+  "fedwire_specific_attributes": {
+    "clearing_system": "FED (Fedwire)",
+    "priority": "HIGH (urgent same-day settlement)",
+    "service_level": "G001 (SWIFT gpi)",
+    "intermediary_bank": "BOFAUS3N (Bank of America)",
+    "instruction_code": "PHOB (Phone Beneficiary)"
+  },
+  "notes": "This message demonstrates a complete interbank transfer scenario: Deutsche Bank in Germany instructing JPMorgan Chase in the US to receive USD 250,000 via Fedwire clearing system, with Bank of America as intermediary. The HIGH priority and UETR tracking indicate this is a gpi-enabled transfer requiring same-day settlement. The instruction code PHOB indicates the beneficiary institution should be contacted by phone. This is semantically related to MT202 cover payments but uses ISO 20022 structure."
+}

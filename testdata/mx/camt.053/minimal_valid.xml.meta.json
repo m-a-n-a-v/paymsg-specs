@@ -1,0 +1,29 @@
+{
+  "test_name": "minimal_valid",
+  "message_type": "camt.053.001.10",
+  "description": "Minimal valid camt.053 Bank to Customer Statement with only required elements. Statement with no transactions where opening balance equals closing balance.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Required group header elements (MsgId, CreDtTm)",
+    "Required statement elements (Id, CreDtTm, Acct)",
+    "Account identification with IBAN and currency",
+    "Account servicer (bank) identification with BIC",
+    "Opening balance (OPBD) with FINAL subtype",
+    "Closing balance (CLBD) with FINAL subtype",
+    "Balance consistency (opening = closing with no entries)",
+    "No transaction entries (zero-activity statement)"
+  ],
+  "business_rules_expected_to_pass": [
+    "CAMT053-DT01: Valid statement creation timestamp",
+    "CAMT053-CY01: Valid ISO 4217 currency code (EUR) for balances",
+    "CAMT053-IB01: Valid IBAN format with Mod-97 check digit",
+    "CAMT053-RF01: Statement ID present",
+    "CAMT053-AC01: Account identification present",
+    "CAMT053-BAL01: Opening balance present",
+    "CAMT053-BAL02: Closing balance present",
+    "CAMT053-BAL03: Balance consistency (EUR 5,000.00 opening = EUR 5,000.00 closing, no entries)",
+    "CAMT053-AM03: Non-negative balance amounts"
+  ],
+  "business_rules_expected_to_fail": [],
+  "notes": "This minimal statement demonstrates the bare minimum required for a valid camt.053 message. Deutsche Bank (DEUTDEFF) is providing a statement for IBAN DE89370400440532013000 with EUR 5,000.00 opening and closing balances. No transaction activity occurred during this period (opening balance = closing balance). This is semantically equivalent to a minimal MT940 message with fields 20, 25, 60F, 62F."
+}

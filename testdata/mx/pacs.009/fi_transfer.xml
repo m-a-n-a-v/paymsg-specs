@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.009.001.10">
+  <FICdtTrf>
+    <GrpHdr>
+      <MsgId>FI20260210DEUTDEFF001</MsgId>
+      <CreDtTm>2026-02-10T10:15:30Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <TtlIntrBkSttlmAmt Ccy="USD">250000.00</TtlIntrBkSttlmAmt>
+      <IntrBkSttlmDt>2026-02-10</IntrBkSttlmDt>
+      <SttlmInf>
+        <SttlmMtd>CLRG</SttlmMtd>
+        <ClrSys>
+          <Cd>FED</Cd>
+        </ClrSys>
+      </SttlmInf>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>DEUTDEFF</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>CHASUS33</BICFI>
+        </FinInstnId>
+      </InstdAgt>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>DEUTDEFF-FI-20260210-001</InstrId>
+        <EndToEndId>CHASUS33-REF-20260210-001</EndToEndId>
+        <TxId>TXN-20260210-001</TxId>
+        <UETR>f47ac10b-58cc-4372-a567-0e02b2c3d479</UETR>
+      </PmtId>
+      <PmtTpInf>
+        <InstrPrty>HIGH</InstrPrty>
+        <SvcLvl>
+          <Prtry>G001</Prtry>
+        </SvcLvl>
+      </PmtTpInf>
+      <IntrBkSttlmAmt Ccy="USD">250000.00</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2026-02-10</IntrBkSttlmDt>
+      <SttlmTmIndctn>
+        <DbtDtTm>2026-02-10T10:00:00Z</DbtDtTm>
+      </SttlmTmIndctn>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>DEUTDEFF</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>CHASUS33</BICFI>
+        </FinInstnId>
+      </InstdAgt>
+      <IntrmyAgt1>
+        <FinInstnId>
+          <BICFI>BOFAUS3N</BICFI>
+        </FinInstnId>
+      </IntrmyAgt1>
+      <Cdtr>
+        <FinInstnId>
+          <BICFI>CHASUS33</BICFI>
+          <Nm>JPMorgan Chase Bank N.A.</Nm>
+          <PstlAdr>
+            <StrtNm>Park Avenue</StrtNm>
+            <BldgNb>383</BldgNb>
+            <PstCd>10179</PstCd>
+            <TwnNm>New York</TwnNm>
+            <CtrySubDvsn>NY</CtrySubDvsn>
+            <Ctry>US</Ctry>
+          </PstlAdr>
+        </FinInstnId>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <Othr>
+            <Id>021000021-12345678</Id>
+          </Othr>
+        </Id>
+      </CdtrAcct>
+      <CdtrAgt>
+        <FinInstnId>
+          <BICFI>CHASUS33</BICFI>
+        </FinInstnId>
+      </CdtrAgt>
+      <InstrForNxtAgt>
+        <Cd>PHOB</Cd>
+        <InstrInf>/INS/Priority high-value transfer for same-day settlement via Fedwire</InstrInf>
+      </InstrForNxtAgt>
+      <RmtInf>
+        <Ustrd>Interbank settlement for cross-border payment processing</Ustrd>
+      </RmtInf>
+    </CdtTrfTxInf>
+  </FICdtTrf>
+</Document>

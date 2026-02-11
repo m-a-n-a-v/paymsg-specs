@@ -1,0 +1,23 @@
+{
+  "test_name": "minimal_valid",
+  "message_type": "camt.052.001.10",
+  "description": "Minimal valid camt.052 Bank to Customer Account Report (Interim) with only required elements. Interim report with no transaction entries and no balances.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Required group header elements (MsgId, CreDtTm)",
+    "Required report elements (Id, CreDtTm, Acct)",
+    "Account identification with IBAN and currency",
+    "Account servicer (bank) identification with BIC",
+    "No balance reporting (key difference from camt.053)",
+    "No transaction entries (zero-activity interim report)"
+  ],
+  "business_rules_expected_to_pass": [
+    "CAMT052-DT02: Valid report creation timestamp",
+    "CAMT052-CY01: Valid ISO 4217 currency code (EUR)",
+    "CAMT052-IB01: Valid IBAN format with Mod-97 check digit",
+    "CAMT052-RF01: Report ID present",
+    "CAMT052-AC01: Account identification present"
+  ],
+  "business_rules_expected_to_fail": [],
+  "notes": "This minimal interim report demonstrates the bare minimum required for a valid camt.052 message. Deutsche Bank (DEUTDEFF) is providing an interim account report for IBAN DE89370400440532013000 at 14:30 on 2026-02-10. Unlike camt.053 statements, camt.052 interim reports do NOT include opening/closing balances - they focus solely on transaction activity reporting. This minimal example has no transaction entries. This is semantically equivalent to a minimal MT942 message with only mandatory fields (20, 25, 28C)."
+}

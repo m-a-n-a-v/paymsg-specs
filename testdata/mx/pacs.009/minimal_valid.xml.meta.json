@@ -1,0 +1,32 @@
+{
+  "test_name": "minimal_valid",
+  "message_type": "pacs.009.001.10",
+  "description": "Minimal valid pacs.009 Financial Institution Credit Transfer with only required elements. Demonstrates bank-to-bank institutional transfer with minimal data.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Required group header elements (MsgId, CreDtTm, NbOfTxs, TtlIntrBkSttlmAmt, IntrBkSttlmDt, InstgAgt, InstdAgt)",
+    "Required transaction elements (PmtId with InstrId and EndToEndId)",
+    "Required settlement elements (IntrBkSttlmAmt, IntrBkSttlmDt)",
+    "Required agent fields (InstgAgt, InstdAgt, Cdtr, CdtrAgt)",
+    "Minimal institutional party identification (BIC only)",
+    "Single transaction batch (NbOfTxs=1)"
+  ],
+  "business_rules_expected_to_pass": [
+    "PACS009-AM01: Positive amount validation",
+    "PACS009-AM02: Currency decimal precision (EUR = 2 decimals)",
+    "PACS009-DT01: Settlement date not in past",
+    "PACS009-DT03: Valid creation timestamp",
+    "PACS009-CY01: Valid ISO 4217 currency code (EUR)",
+    "PACS009-BC01: Valid instructing agent BIC (DEUTDEFF)",
+    "PACS009-BC02: Valid instructed agent BIC (BNPAFRPP)",
+    "PACS009-BC03: Valid creditor agent BIC (BNPAFRPP)",
+    "PACS009-PT01: Creditor institution present",
+    "PACS009-PT02: Creditor agent present",
+    "PACS009-RF01: End-to-end ID present",
+    "PACS009-RF02: Instruction ID present",
+    "PACS009-GH01: Message ID present",
+    "PACS009-GH02: Transaction count consistency (1 CdtTrfTxInf, NbOfTxs=1)"
+  ],
+  "business_rules_expected_to_fail": [],
+  "notes": "This minimal message demonstrates the bare minimum required for a valid pacs.009 message. Deutsche Bank (DEUTDEFF) is instructing BNP Paribas (BNPAFRPP) to transfer EUR 1,000. The creditor is the beneficiary institution (BNPAFRPP itself). No optional elements like payment type info, charges, intermediaries, or additional party details are included."
+}
