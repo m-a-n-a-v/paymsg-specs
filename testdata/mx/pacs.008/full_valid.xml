@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <FIToFICstmrCdtTrf>
+    <GrpHdr>
+      <MsgId>MSGID-20260210-002</MsgId>
+      <CreDtTm>2026-02-10T15:45:30</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <TtlIntrBkSttlmAmt Ccy="USD">25000.00</TtlIntrBkSttlmAmt>
+      <IntrBkSttlmDt>2026-02-11</IntrBkSttlmDt>
+      <SttlmInf>
+        <SttlmMtd>CLRG</SttlmMtd>
+        <ClrSys>
+          <Prtry>FEDWIRE</Prtry>
+        </ClrSys>
+      </SttlmInf>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>CHASUS33XXX</BICFI>
+          <Nm>JPMorgan Chase Bank NA</Nm>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>BOFAUS3NXXX</BICFI>
+          <Nm>Bank of America NA</Nm>
+        </FinInstnId>
+      </InstdAgt>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>INSTR-20260210-002</InstrId>
+        <EndToEndId>E2E-20260210-002</EndToEndId>
+        <TxId>TXN-20260210-002</TxId>
+        <UETR>8a562c9d-3e41-4a9c-a614-2b7e8f9c1a5d</UETR>
+      </PmtId>
+      <PmtTpInf>
+        <InstrPrty>NORM</InstrPrty>
+        <SvcLvl>
+          <Prtry>G001</Prtry>
+        </SvcLvl>
+        <LclInstrm>
+          <Prtry>WIRE</Prtry>
+        </LclInstrm>
+        <CtgyPurp>
+          <Cd>SUPP</Cd>
+        </CtgyPurp>
+      </PmtTpInf>
+      <IntrBkSttlmAmt Ccy="USD">25000.00</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2026-02-11</IntrBkSttlmDt>
+      <InstdAmt Ccy="USD">25100.00</InstdAmt>
+      <XchgRate>1.004</XchgRate>
+      <ChrgBr>DEBT</ChrgBr>
+      <ChrgsInf>
+        <Amt Ccy="USD">25.00</Amt>
+        <Agt>
+          <FinInstnId>
+            <BICFI>CHASUS33XXX</BICFI>
+          </FinInstnId>
+        </Agt>
+      </ChrgsInf>
+      <ChrgsInf>
+        <Amt Ccy="USD">75.00</Amt>
+        <Agt>
+          <FinInstnId>
+            <BICFI>BOFAUS3NXXX</BICFI>
+          </FinInstnId>
+        </Agt>
+      </ChrgsInf>
+      <IntrmyAgt1>
+        <FinInstnId>
+          <BICFI>CITIUS33XXX</BICFI>
+          <Nm>Citibank NA</Nm>
+        </FinInstnId>
+      </IntrmyAgt1>
+      <Dbtr>
+        <Nm>TechCorp Industries Inc</Nm>
+        <PstlAdr>
+          <StrtNm>500 Market Street</StrtNm>
+          <BldgNb>Suite 2500</BldgNb>
+          <PstCd>94105</PstCd>
+          <TwnNm>San Francisco</TwnNm>
+          <CtrySubDvsn>CA</CtrySubDvsn>
+          <Ctry>US</Ctry>
+        </PstlAdr>
+        <Id>
+          <OrgId>
+            <Othr>
+              <Id>12-3456789</Id>
+              <SchmeNm>
+                <Prtry>TXID</Prtry>
+              </SchmeNm>
+            </Othr>
+          </OrgId>
+        </Id>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <Othr>
+            <Id>1234567890</Id>
+          </Othr>
+        </Id>
+        <Tp>
+          <Prtry>CHECKING</Prtry>
+        </Tp>
+        <Ccy>USD</Ccy>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <BICFI>CHASUS33XXX</BICFI>
+          <Nm>JPMorgan Chase Bank NA</Nm>
+          <PstlAdr>
+            <Ctry>US</Ctry>
+          </PstlAdr>
+        </FinInstnId>
+      </DbtrAgt>
+      <CdtrAgt>
+        <FinInstnId>
+          <BICFI>BOFAUS3NXXX</BICFI>
+          <Nm>Bank of America NA</Nm>
+          <PstlAdr>
+            <Ctry>US</Ctry>
+          </PstlAdr>
+        </FinInstnId>
+      </CdtrAgt>
+      <Cdtr>
+        <Nm>Global Manufacturing LLC</Nm>
+        <PstlAdr>
+          <StrtNm>1000 Industrial Boulevard</StrtNm>
+          <PstCd>10001</PstCd>
+          <TwnNm>New York</TwnNm>
+          <CtrySubDvsn>NY</CtrySubDvsn>
+          <Ctry>US</Ctry>
+        </PstlAdr>
+        <Id>
+          <OrgId>
+            <Othr>
+              <Id>98-7654321</Id>
+              <SchmeNm>
+                <Prtry>TXID</Prtry>
+              </SchmeNm>
+            </Othr>
+          </OrgId>
+        </Id>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <Othr>
+            <Id>9876543210</Id>
+          </Othr>
+        </Id>
+        <Tp>
+          <Prtry>CHECKING</Prtry>
+        </Tp>
+        <Ccy>USD</Ccy>
+      </CdtrAcct>
+      <InstrForCdtrAgt>
+        <Cd>PHOB</Cd>
+        <InstrInf>Phone beneficiary at +1-212-555-0100</InstrInf>
+      </InstrForCdtrAgt>
+      <InstrForNxtAgt>
+        <InstrInf>Priority payment for supplier invoice INV-2026-001</InstrInf>
+      </InstrForNxtAgt>
+      <Purp>
+        <Cd>SUPP</Cd>
+      </Purp>
+      <RgltryRptg>
+        <Dtls>
+          <Cd>999</Cd>
+          <Inf>Export payment - machinery</Inf>
+        </Dtls>
+      </RgltryRptg>
+      <RmtInf>
+        <Ustrd>Payment for invoice INV-2026-001 dated 2026-01-15. Purchase order PO-2026-025. 50 industrial widgets.</Ustrd>
+        <Strd>
+          <RfrdDocInf>
+            <Tp>
+              <CdOrPrtry>
+                <Cd>CINV</Cd>
+              </CdOrPrtry>
+            </Tp>
+            <Nb>INV-2026-001</Nb>
+            <RltdDt>2026-01-15</RltdDt>
+          </RfrdDocInf>
+        </Strd>
+      </RmtInf>
+    </CdtTrfTxInf>
+  </FIToFICstmrCdtTrf>
+</Document>

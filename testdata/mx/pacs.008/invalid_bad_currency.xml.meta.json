@@ -1,0 +1,60 @@
+{
+  "test_name": "invalid_bad_currency",
+  "message_type": "pacs.008.001.10",
+  "description": "Invalid pacs.008 message with invalid currency code 'XYZ' in the IntrBkSttlmAmt element. This message should fail business validation as 'XYZ' is not a valid ISO 4217 currency code.",
+  "validation_expected": "fail",
+  "test_coverage": [
+    "Currency code validation against ISO 4217 standard",
+    "Business rule enforcement for valid currency codes",
+    "Invalid currency code detection"
+  ],
+  "business_rules_expected_to_pass": [
+    "PACS008-AM01: IntrBkSttlmAmt must be positive (passes - amount is positive)",
+    "PACS008-DT01: Settlement date not in past (passes)",
+    "PACS008-BC02: Valid instructing agent BIC (passes)",
+    "PACS008-BC03: Valid instructed agent BIC (passes)",
+    "PACS008-BC04: Valid debtor agent BIC (passes)",
+    "PACS008-BC05: Valid creditor agent BIC (passes)",
+    "PACS008-IB01: Valid debtor IBAN (passes)",
+    "PACS008-IB02: Valid creditor IBAN (passes)",
+    "PACS008-PT01: Debtor name present (passes)",
+    "PACS008-PT03: Creditor name present (passes)",
+    "PACS008-RF01: End-to-end ID present (passes)",
+    "PACS008-RF02: Instruction ID present (passes)",
+    "PACS008-CH01: Valid charge bearer code (passes)",
+    "PACS008-GH01: Message ID present (passes)",
+    "PACS008-GH02: Transaction count matches (passes)"
+  ],
+  "business_rules_expected_to_fail": [
+    {
+      "rule_id": "PACS008-CY01",
+      "rule_description": "Currency code must be valid ISO 4217 code",
+      "failure_reason": "Currency code 'XYZ' is not a valid ISO 4217 currency code",
+      "field_path": "CdtTrfTxInf/IntrBkSttlmAmt/@Ccy",
+      "invalid_value": "XYZ"
+    }
+  ],
+  "expected_errors": [
+    {
+      "error_type": "business_validation",
+      "error_level": "error",
+      "error_message": "Invalid currency code: XYZ is not a valid ISO 4217 currency code",
+      "error_location": "CdtTrfTxInf/IntrBkSttlmAmt/@Ccy",
+      "rule_id": "PACS008-CY01",
+      "explanation": "The currency code 'XYZ' does not exist in the ISO 4217 standard currency code list. Valid currency codes are 3-letter alphabetic codes like EUR, USD, GBP, JPY, etc."
+    }
+  ],
+  "invalid_currency_details": {
+    "provided_code": "XYZ",
+    "valid_examples": [
+      "EUR (Euro)",
+      "USD (US Dollar)",
+      "GBP (British Pound)",
+      "JPY (Japanese Yen)",
+      "CHF (Swiss Franc)"
+    ],
+    "validation_source": "reference/currencies.json ISO 4217 currency reference data",
+    "impact": "The payment cannot be processed because the settlement amount is denominated in an unknown currency. Financial institutions cannot determine exchange rates, decimal precision, or accounting treatment for invalid currency codes."
+  },
+  "notes": "This test validates that business rule engines correctly enforce ISO 4217 currency code validation. Unlike XSD schema validation which may only check the format (3 alphabetic characters), business validation must verify that the code exists in the official ISO 4217 currency list. The message is structurally valid but semantically invalid due to the non-existent currency code."
+}

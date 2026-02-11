@@ -1,0 +1,38 @@
+{
+  "test_name": "minimal_valid",
+  "message_type": "pacs.008.001.10",
+  "description": "Minimal valid pacs.008 message containing only required elements. Demonstrates the absolute minimum fields needed for a valid customer credit transfer.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Group header with mandatory fields (MsgId, CreDtTm, NbOfTxs)",
+    "Single transaction with required payment identification (InstrId, EndToEndId)",
+    "Interbank settlement amount and date",
+    "Charge bearer code (SHAR)",
+    "Debtor and creditor with names only",
+    "Debtor and creditor accounts with IBANs",
+    "Debtor and creditor agents with BIC codes"
+  ],
+  "business_rules_expected_to_pass": [
+    "PACS008-AM01: IntrBkSttlmAmt must be positive",
+    "PACS008-AM02: Currency decimal places valid",
+    "PACS008-DT01: Settlement date not in past",
+    "PACS008-CY01: Valid ISO 4217 currency code",
+    "PACS008-BC02: Valid instructing agent BIC",
+    "PACS008-BC03: Valid instructed agent BIC",
+    "PACS008-BC04: Valid debtor agent BIC",
+    "PACS008-BC05: Valid creditor agent BIC",
+    "PACS008-IB01: Valid debtor IBAN with Mod-97",
+    "PACS008-IB02: Valid creditor IBAN with Mod-97",
+    "PACS008-PT01: Debtor name present",
+    "PACS008-PT03: Creditor name present",
+    "PACS008-PT02: Debtor account present",
+    "PACS008-PT04: Creditor account present",
+    "PACS008-RF01: End-to-end ID present",
+    "PACS008-RF02: Instruction ID present",
+    "PACS008-CH01: Valid charge bearer code",
+    "PACS008-GH01: Message ID present",
+    "PACS008-GH02: Transaction count matches"
+  ],
+  "business_rules_expected_to_fail": [],
+  "notes": "This is the simplest valid pacs.008 message. It uses EUR currency, German and French banks, valid IBANs, and shared charge bearer. No optional fields are populated."
+}

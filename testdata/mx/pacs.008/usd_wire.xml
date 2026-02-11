@@ -1,0 +1,105 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <FIToFICstmrCdtTrf>
+    <GrpHdr>
+      <MsgId>MSGID-20260210-004</MsgId>
+      <CreDtTm>2026-02-10T09:22:45</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <SttlmInf>
+        <SttlmMtd>CLRG</SttlmMtd>
+        <ClrSys>
+          <Prtry>FEDWIRE</Prtry>
+        </ClrSys>
+      </SttlmInf>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>BOFAUS3NXXX</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>CHASUS33XXX</BICFI>
+        </FinInstnId>
+      </InstdAgt>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>WIRE-20260210-004</InstrId>
+        <EndToEndId>E2E-US-20260210-004</EndToEndId>
+      </PmtId>
+      <PmtTpInf>
+        <InstrPrty>HIGH</InstrPrty>
+        <SvcLvl>
+          <Prtry>FEDWIRE</Prtry>
+        </SvcLvl>
+        <LclInstrm>
+          <Prtry>WIRE</Prtry>
+        </LclInstrm>
+        <CtgyPurp>
+          <Cd>INTC</Cd>
+        </CtgyPurp>
+      </PmtTpInf>
+      <IntrBkSttlmAmt Ccy="USD">150000.00</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2026-02-10</IntrBkSttlmDt>
+      <ChrgBr>DEBT</ChrgBr>
+      <Dbtr>
+        <Nm>Westfield Properties LLC</Nm>
+        <PstlAdr>
+          <StrtNm>3000 Sand Hill Road</StrtNm>
+          <PstCd>94025</PstCd>
+          <TwnNm>Menlo Park</TwnNm>
+          <CtrySubDvsn>CA</CtrySubDvsn>
+          <Ctry>US</Ctry>
+        </PstlAdr>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <Othr>
+            <Id>4567123890</Id>
+          </Othr>
+        </Id>
+        <Tp>
+          <Prtry>BUSINESS</Prtry>
+        </Tp>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <BICFI>BOFAUS3NXXX</BICFI>
+          <Nm>Bank of America NA</Nm>
+        </FinInstnId>
+      </DbtrAgt>
+      <CdtrAgt>
+        <FinInstnId>
+          <BICFI>CHASUS33XXX</BICFI>
+          <Nm>JPMorgan Chase Bank NA</Nm>
+        </FinInstnId>
+      </CdtrAgt>
+      <Cdtr>
+        <Nm>Metropolitan Investments Inc</Nm>
+        <PstlAdr>
+          <StrtNm>270 Park Avenue</StrtNm>
+          <PstCd>10017</PstCd>
+          <TwnNm>New York</TwnNm>
+          <CtrySubDvsn>NY</CtrySubDvsn>
+          <Ctry>US</Ctry>
+        </PstlAdr>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <Othr>
+            <Id>7890456123</Id>
+          </Othr>
+        </Id>
+        <Tp>
+          <Prtry>BUSINESS</Prtry>
+        </Tp>
+      </CdtrAcct>
+      <Purp>
+        <Cd>INTC</Cd>
+      </Purp>
+      <RmtInf>
+        <Ustrd>Real estate transaction - property acquisition deposit</Ustrd>
+      </RmtInf>
+    </CdtTrfTxInf>
+  </FIToFICstmrCdtTrf>
+</Document>

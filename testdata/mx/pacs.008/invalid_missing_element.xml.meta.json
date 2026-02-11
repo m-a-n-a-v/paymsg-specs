@@ -1,0 +1,37 @@
+{
+  "test_name": "invalid_missing_element",
+  "message_type": "pacs.008.001.10",
+  "description": "Invalid pacs.008 message missing the required GrpHdr (Group Header) element. This message should fail XSD schema validation as GrpHdr is a mandatory element in pacs.008.001.10.",
+  "validation_expected": "fail",
+  "test_coverage": [
+    "XSD schema validation for mandatory elements",
+    "Group header requirement enforcement",
+    "Parser error handling for missing required elements"
+  ],
+  "business_rules_expected_to_pass": [],
+  "business_rules_expected_to_fail": [
+    "PACS008-GH01: Message ID present (fails - GrpHdr missing entirely)",
+    "PACS008-GH02: Transaction count matches (fails - GrpHdr missing entirely)"
+  ],
+  "expected_errors": [
+    {
+      "error_type": "schema_validation",
+      "error_level": "error",
+      "error_message": "Missing required element: GrpHdr",
+      "error_location": "Document/FIToFICstmrCdtTrf",
+      "explanation": "The GrpHdr (Group Header) element is mandatory in pacs.008.001.10 according to the ISO 20022 XSD schema. It must contain MsgId, CreDtTm, NbOfTxs, and agent information."
+    }
+  ],
+  "missing_elements": {
+    "element": "GrpHdr",
+    "parent": "FIToFICstmrCdtTrf",
+    "required_children": [
+      "MsgId (Message Identification)",
+      "CreDtTm (Creation Date Time)",
+      "NbOfTxs (Number of Transactions)",
+      "InstgAgt (Instructing Agent) or InstdAgt (Instructed Agent)"
+    ],
+    "impact": "Without GrpHdr, the message lacks critical metadata including message identifier, creation timestamp, transaction count, and routing information. This makes the message unparseable and unprocessable."
+  },
+  "notes": "This test validates that parsers correctly reject messages missing mandatory top-level elements. The GrpHdr element is required by the pacs.008.001.10 XSD schema and contains essential metadata for message routing and processing. Any conformant parser must fail when processing this message."
+}

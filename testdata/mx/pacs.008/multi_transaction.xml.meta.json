@@ -1,0 +1,60 @@
+{
+  "test_name": "multi_transaction",
+  "message_type": "pacs.008.001.10",
+  "description": "Batch pacs.008 message with multiple credit transfer transaction information (CdtTrfTxInf) entries. Demonstrates how a single pacs.008 message can contain multiple individual payments from the same debtor to different creditors.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Multiple CdtTrfTxInf entries (batch of 3 transactions)",
+    "Group header NbOfTxs field validation (must equal 3)",
+    "Group header TtlIntrBkSttlmAmt validation (must equal sum of individual amounts: 5000.00 + 8250.25 + 2500.25 = 15750.50)",
+    "Same debtor across all transactions",
+    "Different creditors for each transaction",
+    "Different creditor accounts (3 different French IBANs)",
+    "Unique payment identifiers for each transaction (InstrId, EndToEndId)",
+    "SEPA compliance across all transactions",
+    "Transaction count consistency",
+    "Amount total consistency"
+  ],
+  "business_rules_expected_to_pass": [
+    "PACS008-AM01: All IntrBkSttlmAmt values must be positive",
+    "PACS008-AM02: Currency decimal places valid for all transactions",
+    "PACS008-DT01: Settlement date not in past",
+    "PACS008-CY01: Valid ISO 4217 currency code (EUR) for all transactions",
+    "PACS008-BC02: Valid instructing agent BIC",
+    "PACS008-BC03: Valid instructed agent BIC",
+    "PACS008-BC04: Valid debtor agent BIC for all transactions",
+    "PACS008-BC05: Valid creditor agent BIC for all transactions",
+    "PACS008-IB01: Valid debtor IBAN",
+    "PACS008-IB02: Valid creditor IBANs (3 different French IBANs)",
+    "PACS008-PT01: Debtor name present for all transactions",
+    "PACS008-PT03: Creditor name present for all transactions",
+    "PACS008-PT02: Debtor account present for all transactions",
+    "PACS008-PT04: Creditor account present for all transactions",
+    "PACS008-RF01: End-to-end ID present for all transactions",
+    "PACS008-RF02: Instruction ID present for all transactions",
+    "PACS008-CH01: Valid charge bearer code for all transactions",
+    "PACS008-CH02: SEPA requires shared charges (all use SHAR)",
+    "PACS008-SP01: SEPA requires EUR currency",
+    "PACS008-SP03: SEPA zone BICs",
+    "PACS008-SM01: Valid settlement method",
+    "PACS008-GH01: Message ID present",
+    "PACS008-GH02: Transaction count matches (NbOfTxs=3)",
+    "PACS008-GH03: Total settlement amount matches sum (15750.50)"
+  ],
+  "business_rules_expected_to_fail": [],
+  "batch_specific_attributes": {
+    "number_of_transactions": 3,
+    "total_amount": "15750.50 EUR",
+    "individual_amounts": [
+      "5000.00 EUR (transaction 1)",
+      "8250.25 EUR (transaction 2)",
+      "2500.25 EUR (transaction 3)"
+    ],
+    "debtor_consistency": "Same debtor (Global Exports GmbH) for all transactions",
+    "creditor_variety": "Three different creditors (Supplier Alpha, Beta, Gamma)",
+    "payment_batching": "Single pacs.008 message containing 3 individual payments",
+    "service_level": "SEPA for all transactions",
+    "clearing_system": "TARGET2"
+  },
+  "notes": "This demonstrates the batch capability of pacs.008.001.10. Unlike MT103 which is always single transaction, pacs.008 can contain multiple CdtTrfTxInf entries in a single message. This is particularly useful for corporate treasury operations making multiple payments to different suppliers. The GrpHdr contains totals (NbOfTxs=3, TtlIntrBkSttlmAmt=15750.50) that must match the individual transaction details. All three transactions share the same debtor account (common for payment batches) but have different creditors and amounts."
+}
