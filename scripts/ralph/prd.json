@@ -176,7 +176,7 @@
         "Document which fields in MT103/202/940/942 use which character set"
       ],
       "priority": 11,
-      "passes": false,
+      "passes": true,
       "notes": "Character set conversion is critical for MT<->MX translation."
     },
     {

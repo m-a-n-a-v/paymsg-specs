@@ -372,3 +372,45 @@ Files changed:
 - Block ordering is strict: 1, 2, [3], 4, [5] where brackets indicate optional blocks
 - This specification is reference infrastructure for all MT message parsers - reusable across all message types
 ---
+
+## 2026-02-10 - SPEC-011
+- Implemented SWIFT character set specifications
+- Created reference/swift_charsets.schema.json defining JSON Schema for character set definitions, UTF-8 mappings, and field-level charset usage
+- Created reference/swift_charsets.json with comprehensive SWIFT character sets (608 lines total for both files)
+  - SWIFT X Character Set: 75 characters (A-Z, a-z, 0-9, space, and basic punctuation: / - ? : ( ) . , ' +)
+  - SWIFT Y Character Set: 77 characters (A-Z, 0-9, space, basic punctuation, plus CR and LF)
+  - SWIFT Z Character Set: 102 characters (full alphanumeric, all special symbols, control characters including CR/LF)
+- Documented UTF-8 to SWIFT character mappings:
+  - Accented characters: 70 mappings covering Latin-1 Supplement and Latin Extended (À→A, Ä→AE, ß→ss, etc.)
+  - Special symbols: 23 mappings for currency signs, mathematical symbols, trademark symbols (€→EUR, £→GBP, ™→TM, etc.)
+  - Punctuation: 10 mappings for smart quotes and angle brackets (""→", ''→', «»→", etc.)
+- Documented field-level character set usage for all MT message types (33 entries):
+  - Identified which character set (X, Y, or Z) applies to each field in MT103, MT202, MT940, MT942
+  - Documented that all Block 1, 2, 3, 5 fields use X charset
+  - Documented that Block 4 text fields primarily use X charset
+  - Included usage notes for each field (max length, format constraints)
+- Used Unicode escape sequences (\uXXXX) for problematic characters in JSON to ensure valid JSON parsing
+- Validated all JSON files with jq (both pass validation)
+
+Files changed:
+- reference/swift_charsets.json (new, 387 lines)
+- reference/swift_charsets.schema.json (new, 221 lines)
+- scripts/ralph/prd.json (updated SPEC-011 passes: true)
+
+**Learnings for future iterations:**
+- SWIFT character sets are hierarchical: X (most restrictive) ⊂ Y ⊂ Z (most permissive)
+- SWIFT X is for structured data: BICs, IBANs, currency codes, reference numbers, and most MT field content
+- SWIFT Y adds CR/LF but removes lowercase letters - rarely used in practice, mostly historic
+- SWIFT Z is for free-form text but still ASCII-based - not full Unicode support
+- MT messages are fundamentally ASCII-based: no native Unicode support, all non-ASCII must be transliterated
+- UTF-8 to SWIFT mapping is lossy: accented characters lose diacritics (é→e), special currency symbols become text (€→EUR)
+- German umlaut mapping convention: ä→ae, ö→oe, ü→ue, ß→ss (not just dropping diacritics)
+- Nordic character mappings: Å→AA, Ø→O, Æ→AE (special handling for Scandinavian languages)
+- Smart quotes and typographic punctuation must be converted to ASCII equivalents for MT messages
+- Character set conversion is critical for MT↔MX translation: MX supports full Unicode, MT does not
+- All MT Block 4 fields use X charset unless explicitly documented otherwise in SWIFT standards
+- Field 86 (Information to Account Owner) in MT940/MT942 uses X charset despite being free-form text
+- Character set validation is separate from field format validation - both must be checked
+- When converting UTF-8 to SWIFT, always apply mappings before truncation to avoid cutting mid-character
+- JSON representation of special characters: use Unicode escape sequences (\uXXXX) to avoid parser confusion with raw UTF-8 characters like ", ", ', '
+---
