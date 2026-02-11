@@ -65,12 +65,41 @@ cp paymsg-specs/mt-specs/mt103.json ./specs/
 
 ### Validation
 
-Before using data from this repository, validate it:
+Before using data from this repository, validate it using the comprehensive validation script:
 
 ```bash
-# Validate all JSON files
-./validate.sh
+# Run all validation checks
+bash validate.sh
 ```
+
+The validation script performs the following checks:
+
+1. **JSON Validity** — Verifies all `.json` files are valid JSON (using `jq`)
+2. **JSON Schema Validation** — Validates JSON files against their companion `.schema.json` files
+3. **Test Metadata** — Ensures all test data files (`.mt`, `.xml`) have companion `.meta.json` files
+4. **IBAN Check Digits** — Validates all example IBANs in `reference/iban_formats.json` using Mod-97 algorithm
+5. **Unique Rule IDs** — Checks for duplicate rule IDs across all rule files
+6. **MT Tag References** — Verifies mapping files only reference valid MT tags defined in `mt-specs/`
+
+#### Requirements
+
+- `jq` — JSON processor ([installation guide](https://stedolan.github.io/jq/download/))
+- `python3` — For advanced validation logic (IBAN Mod-97, cross-file checks)
+- Optional: `pip3 install jsonschema` — For JSON Schema validation (will skip if not available)
+
+#### CI/CD Integration
+
+Add validation to your CI pipeline:
+
+```yaml
+# Example GitHub Actions workflow
+- name: Validate paymsg-specs
+  run: |
+    cd paymsg-specs
+    bash validate.sh
+```
+
+The script exits with code 0 if all checks pass, non-zero if any check fails.
 
 See each directory's README for detailed format specifications and usage examples.
 
