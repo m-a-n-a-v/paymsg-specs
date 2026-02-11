@@ -707,3 +707,57 @@ Files changed:
 - Floor limit information (34F) has no standard field in camt.052 - must use proprietary elements or additional report info, which may lose semantic precision
 - The mapping pattern from MT940->camt.053 applies almost 1:1 to MT942->camt.052 with adjustments for balance fields -> summary totals substitution
 ---
+
+## 2026-02-10 - SPEC-016
+- Implemented business validation rules for pacs.008.001.10 (Customer Credit Transfer)
+- Created rules/rules.schema.json (93 lines) - JSON Schema for validating business rule definitions
+  - Schema validates message_type, description, rules array structure
+  - Each rule requires: id, description, severity (error/warning/info), condition, assertion, field_paths array
+  - Supports optional fields: suggestion, category, references, examples
+  - Rule ID pattern validation: MSGTYPE-XXNN format (e.g., PACS008-AM01)
+  - Severity levels: error (must be fixed), warning (should be reviewed), info (informational)
+- Created rules/pacs008_rules.json (40 rules, 649 lines) - Comprehensive business validation rules
+  - **Amount rules (AM category):** 5 rules covering amount positivity, currency decimal precision, currency consistency, exchange rates
+  - **Date rules (DT category):** 3 rules covering settlement date validation, future date limits, creation timestamp validation
+  - **Currency rules (CY category):** 2 rules validating ISO 4217 currency codes for settlement and instructed amounts
+  - **BIC rules (BC category):** 5 rules validating BIC format (ISO 9362) for all financial institution fields (instructing, instructed, debtor, creditor, intermediary agents)
+  - **IBAN rules (IB category):** 2 rules validating IBAN format (ISO 13616) with Mod-97 check digit validation for debtor and creditor accounts
+  - **Party rules (PT category):** 6 rules ensuring mandatory party fields (debtor/creditor names, accounts, agents)
+  - **Reference rules (RF category):** 3 rules validating payment identifiers (end-to-end ID, instruction ID, UETR UUID format)
+  - **Charge bearer rules (CH category):** 3 rules validating charge bearer codes, SEPA shared charges requirement, charge amount positivity
+  - **SEPA rules (SP category):** 3 rules enforcing SEPA Credit Transfer Rulebook requirements (EUR currency, amount limits, SEPA zone BICs, IBAN mandatory)
+  - **Regulatory rules (RG category):** 2 warning rules for large payment reporting and high-value purpose codes
+  - **Settlement rules (SM category):** 2 rules validating settlement method codes and clearing system presence
+  - **Header rules (GH category):** 3 rules validating group header consistency (message ID, transaction count, total amount)
+  - **Exchange rate rules (XF category):** 2 rules validating exchange rate positivity and presence when currencies differ
+- All 40 rules include detailed descriptions, field paths, suggestions for fixing failures
+- Rules use expression language for conditions and assertions (e.g., 'always', 'if field X exists', logical operators)
+- Validated all JSON files with jq (100% valid)
+- Verified no duplicate rule IDs across all rules
+- Committed changes with proper message format
+
+Files changed:
+- rules/rules.schema.json (new, 93 lines)
+- rules/pacs008_rules.json (new, 649 lines, 40 rules)
+- scripts/ralph/prd.json (updated SPEC-016 passes: true)
+
+**Learnings for future iterations:**
+- Business validation rules go beyond XSD schema validation to enforce domain-specific constraints
+- Rule categories help organize rules by domain: amounts (AM), dates (DT), currencies (CY), BICs (BC), IBANs (IB), parties (PT), references (RF), charges (CH), SEPA (SP), regulatory (RG), settlement (SM), header (GH), exchange (XF)
+- Rule ID pattern MSGTYPE-XXNN provides clear namespacing: message type prefix + category (2 letters) + number (2 digits)
+- Severity levels distinguish blocking errors from warnings and informational notices
+- Conditions use expression language: 'always' for unconditional rules, 'if <field> exists' for conditional rules, logical expressions for complex conditions
+- Assertions define what must be true: comparisons (>, <, ==), set membership (in), function calls (is_valid_bic, is_valid_iban, is_valid_uuid)
+- Field paths use XPath-like notation to reference ISO 20022 message elements: GrpHdr/MsgId, CdtTrfTxInf/IntrBkSttlmAmt, CdtTrfTxInf/Dbtr/Nm
+- Attribute access uses @ notation: IntrBkSttlmAmt/@Ccy for currency attribute
+- SEPA-specific rules enforce strict requirements: EUR currency, shared charges (SHA/SHAR), IBAN mandatory, SEPA zone BICs, amount limits
+- Cross-field validation rules check consistency: currency matching, transaction count matching, amount totals matching
+- Regulatory warning rules guide compliance without blocking: large payment reporting, high-value purpose codes
+- Suggestions provide actionable guidance for fixing rule failures
+- References link rules to external standards: ISO 4217, ISO 9362, ISO 13616, SEPA Credit Transfer Rulebook, SWIFT gpi
+- Rule reusability: rules.schema.json will be reused for pacs.009, camt.052, camt.053 rule files in SPEC-017
+- Balance between comprehensive coverage and maintainability: 40 rules provide strong validation without overwhelming implementers
+- Rules are declarative: they describe what to validate, not how to implement validation logic (that's for the consuming application)
+- Expression language is intentionally simple and readable: suitable for JSON representation and human review
+- Future rule additions should follow same patterns: clear ID, category grouping, detailed description, actionable suggestion
+---

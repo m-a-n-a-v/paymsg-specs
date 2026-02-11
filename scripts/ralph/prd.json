@@ -260,7 +260,7 @@
         "Each rule has a unique ID following pattern PACS008-XXNN (XX=category, NN=number)"
       ],
       "priority": 16,
-      "passes": false,
+      "passes": true,
       "notes": "Business rules are the real value differentiator. These must be accurate and well-documented."
     },
     {
