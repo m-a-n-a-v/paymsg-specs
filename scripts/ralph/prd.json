@@ -228,7 +228,7 @@
         "Document data loss scenarios in both directions"
       ],
       "priority": 14,
-      "passes": false,
+      "passes": true,
       "notes": "Statement messages have repeating structures that make mapping more complex."
     },
     {

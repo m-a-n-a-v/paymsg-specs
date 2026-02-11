@@ -554,3 +554,84 @@ Files changed:
 - Field ordering in MT202 is simpler: 20, 21, [13C], 32A, then optional institution fields in sequence
 - When translating MT202->pacs.009, must default ChrgBr (charge bearer) as it's often mandatory in MX but absent in MT202
 ---
+
+## 2026-02-10 - SPEC-014
+- Implemented MT940 to camt.053.001.10 field mapping definitions
+- Created mappings/mt940_camt053.json with comprehensive bidirectional field mappings (644 lines)
+- Documented 50+ mapping entries covering all major MT940 fields to camt.053 elements:
+  - Field 20 (Transaction Reference) -> Stmt/Id
+  - Field 25 (Account Identification) -> Stmt/Acct/Id with IBAN detection
+  - Field 25P (Account with BIC) -> Stmt/Acct/Id + Stmt/Acct/Svcr/FinInstnId split mapping
+  - Field 28C (Statement/Sequence Number) -> Stmt/LglSeqNb + Stmt/ElctrncSeqNb split mapping
+  - Field 60F/60M (Opening Balance) -> Stmt/Bal with Tp/CdOrPrtry/Cd='OPBD' and SubTp='FINAL'/'INTERIM'
+  - Field 62F/62M (Closing Balance) -> Stmt/Bal with Tp/CdOrPrtry/Cd='CLBD' and SubTp='FINAL'/'INTERIM'
+  - Field 64 (Closing Available Balance) -> Stmt/Bal with Tp/CdOrPrtry/Cd='CLAV'
+  - Field 65 (Forward Available Balance) -> Stmt/Bal with Tp/CdOrPrtry/Cd='FWAV', can repeat
+  - Field 61 (Statement Line - repeating) -> Stmt/Ntry with complex subfield parsing:
+    - Value date (YYMMDD) -> Ntry/ValDt/Dt
+    - Entry date (MMDD, optional) -> Ntry/BookgDt/Dt
+    - D/C mark (C/D/RC/RD) -> Ntry/CdtDbtInd with lookup: C->CRDT, D->DBIT, RC/RD->reversal indicators
+    - Funds code (optional) -> Ntry/Sts/Cd: omitted->BOOK, D->PDNG
+    - Amount (15d with comma) -> Ntry/Amt with decimal conversion
+    - Transaction type (4 chars: N/F + 3-char code) -> Ntry/BkTxCd/Prtry/Cd (NCHK, NTRF, NSTD, etc.)
+    - Customer reference (16x) -> Ntry/NtryDtls/TxDtls/Refs/AcctSvcrRef
+    - Bank reference (//16x, optional) -> Ntry/NtryRef
+    - Supplementary details (34x, optional) -> Ntry/AddtlNtryInf
+  - Field 86 (Information to Account Owner - repeating) -> multiple possible mappings:
+    - Unstructured: Ntry/NtryDtls/TxDtls/RmtInf/Ustrd
+    - Structured with subfield codes (?20-?29, ?30, ?32, ?60, ?62, etc.) -> Ntry/NtryDtls/TxDtls/RltdPties or AddtlNtryInf
+- Documented 1 MT-only field: field 28C combined format (statement/sequence in single field vs MX separate elements)
+- Documented 7 MX-only fields that have no MT equivalent:
+  - GrpHdr/MsgId: generate UUID at translation time
+  - GrpHdr/CreDtTm: use current timestamp
+  - GrpHdr/MsgRcpt: derive from institutional configuration or omit
+  - Stmt/CreDtTm: use closing balance date + current time
+  - Stmt/Acct/Ccy: use currency from balance fields
+  - Stmt/Ntry/NtryDtls/Btch: omit (MT940 has no batch concept)
+  - Stmt/TxsSummary: calculate from field 61 entries (count, sum credits, sum debits)
+- Included 10 mapping_notes covering key transformation rules:
+  - Character set conversion (SWIFT ASCII to Unicode)
+  - Decimal separator conversion (comma to period)
+  - Date format conversion (YYMMDD to YYYY-MM-DD with century inference)
+  - Field 61 can repeat multiple times (one per transaction)
+  - Field 86 follows field 61 for additional transaction details
+  - Balance type codes: OPBD (opening), CLBD (closing), CLAV (closing available), FWAV (forward available)
+  - D/C mark lookup: C->CRDT, D->DBIT, RC/RD->reversals
+  - SWIFT Bank Transaction Codes preserved in BkTxCd/Prtry/Cd
+- Added key_differences_from_payment_messages section documenting:
+  - MT940/camt.053 are account statements, not payment instructions
+  - Field 61 repeating structure maps to multiple Ntry elements
+  - Balance consistency validation: closing = opening + credits - debits
+  - Field 86 has no standardized structure (bank-proprietary formats)
+  - No party identification fields like MT103 (parties in field 86 if present)
+  - Multiple balance types with different BalTp codes
+- All JSON validated with jq (100% valid)
+- Reused mappings/mapping.schema.json from SPEC-012 (confirmed schema is reusable)
+- Committed changes with proper message format
+
+Files changed:
+- mappings/mt940_camt053.json (new, 644 lines)
+- scripts/ralph/prd.json (updated SPEC-014 passes: true)
+
+**Learnings for future iterations:**
+- MT940 statement messages are fundamentally different from payment messages (MT103/MT202): they report historical transactions rather than initiate payments
+- Field 61 (Statement Line) has the most complex structure in MT940 with 9 subfields requiring careful parsing: value date, entry date, D/C mark, funds code, amount, transaction type, customer ref, bank ref, supplementary details
+- Field 61 can repeat many times in a single MT940 message (one per transaction), each mapping to a separate camt.053 Ntry element
+- Field 86 (Information to Account Owner) is not standardized - banks use proprietary structured formats with subfield codes (?20, ?30, ?32, ?60, etc.) or free-text
+- Balance field structure is consistent across all balance types (60F/60M/62F/62M/64/65): D/C mark + YYMMDD date + 3-letter currency + amount with comma decimal
+- Balance type mapping uses camt.053 BalTp codes: OPBD (opening booked), CLBD (closing booked), CLAV (closing available), FWAV (forward available)
+- Fields 60F/60M and 62F/62M are mutually exclusive: F (final) for first/last statement of day, M (intermediate) for intraday statements
+- Field 64 (Closing Available Balance) shows funds available after holds/reserves, may differ from field 62 closing booked balance
+- Field 65 (Forward Available Balance) can repeat for multiple future dates, showing projected balances considering pending transactions
+- Entry date in field 61 is optional (MMDD format) - if omitted, entry date equals value date
+- D/C mark can be C (credit), D (debit), RC (reversal credit), RD (reversal debit) - reversals need special handling in camt.053 with Rvsl indicator or Sts code
+- Funds code in field 61 indicates availability: omitted/blank = booked (BOOK), D = pending/held (PDNG)
+- Transaction type codes use SWIFT Bank Transaction Codes: first char N (SWIFT) or F (non-SWIFT), then 3-char family code (NCHK=check, NTRF=transfer, NSTD=standing order, NDDT=direct debit)
+- IBAN detection is critical for field 25 mapping: if account matches IBAN format, use Acct/Id/IBAN; otherwise use Acct/Id/Othr/Id
+- Field 25P combines BIC and account in single field (format: BIC/Account) - must split for camt.053 mapping
+- Field 28C combines statement number and sequence/page number (format: StmtNb/SeqNb) - must split for camt.053 LglSeqNb and ElctrncSeqNb
+- Balance consistency validation is critical: closing balance must equal opening balance + sum of all credits - sum of all debits from field 61 entries
+- camt.053 TxsSummary can be derived from MT940 by counting field 61 occurrences and summing credit/debit amounts
+- The same mapping.schema.json from SPEC-012 works perfectly for MT940/camt.053, confirming reusable design across all MT/MX message pair mappings
+- Statement messages have more complex repeating structures than payment messages but follow same mapping patterns
+---
