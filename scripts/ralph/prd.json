@@ -330,7 +330,7 @@
         "MT940 multi_statement_line.mt demonstrates repeating 61+86 field patterns"
       ],
       "priority": 20,
-      "passes": false,
+      "passes": true,
       "notes": "Can be lighter than MT103 test data but must demonstrate key format features."
     },
     {
