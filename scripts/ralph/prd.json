@@ -212,7 +212,7 @@
         "Document data loss scenarios in both directions"
       ],
       "priority": 13,
-      "passes": false,
+      "passes": true,
       "notes": "Simpler than MT103/pacs.008 but still requires careful field mapping."
     },
     {

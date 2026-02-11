@@ -494,3 +494,63 @@ Files changed:
 - Schema reusability: mapping.schema.json will be reused for MT202/pacs.009, MT940/camt.053, MT942/camt.052
 - Comprehensive documentation is essential: this mapping file is the reference for implementing the translation engine
 ---
+
+## 2026-02-10 - SPEC-013
+- Implemented MT202 to pacs.009.001.10 field mapping definitions
+- Created mappings/mt202_pacs009.json with comprehensive bidirectional field mappings (542 lines)
+- Documented 34 field mappings covering all major MT202 fields to pacs.009 elements:
+  - Field 20 (Transaction Reference) -> InstrId and conditionally EndToEndId
+  - Field 21 (Related Reference) -> EndToEndId or InstrForNxtAgt/InstrInf to maintain cover payment link to underlying MT103
+  - Block 3 tag 121 (UETR) -> UETR element for gpi tracking
+  - Field 13C (Time Indication) -> GrpHdr/CreDtTm (derived)
+  - Field 32A split mapping: date (YYMMDD) -> IntrBkSttlmDt, currency+amount -> IntrBkSttlmAmt
+  - Field 52A/52D (Ordering Institution) -> InstgAgt/FinInstnId (key difference from MT103 mapping)
+  - Field 53A/53B/53D (Sender's Correspondent) -> InstgAgtAcct (correspondent banking concept, lossy mapping)
+  - Field 54A/54B/54D (Receiver's Correspondent) -> InstdAgtAcct (correspondent banking concept, lossy mapping)
+  - Field 56A/56D (Intermediary Institution) -> IntrmyAgt1/FinInstnId with account mapping
+  - Field 57A/57B/57D (Account With Institution) -> CdtrAgt/FinInstnId (beneficiary's bank)
+  - Field 58A/58D (Beneficiary Institution) -> Cdtr/Id/OrgId/AnyBIC (final beneficiary FI, not customer)
+  - Field 72 (Sender to Receiver Information) -> InstrForNxtAgt/InstrInf with /INS/ codes
+- Documented 6 MT-only fields that have no MX equivalent (fields 53A/B/D, 54A/B/D)
+  - Reason: Correspondent banking model (sender's/receiver's correspondent) doesn't map to pacs.009 routing model
+- Documented 12 MX-only fields that have no MT equivalent (GrpHdr elements, SvcLvl, ChrgBr, ChrgsInf)
+  - GrpHdr/MsgId, CreDtTm, NbOfTxs: generate or derive at translation time (batch metadata)
+  - GrpHdr/InstgAgt/InstdAgt: extract from MT Block 1/2 sender/receiver BIC
+  - CdtTrfTxInf/PmtTpInf/SvcLvl: derive from context (G001 for gpi, G002 for cover)
+  - CdtTrfTxInf/ChrgBr: default to SHAR (MT202 has NO charge bearer field unlike MT103)
+  - CdtTrfTxInf/ChrgsInf: omit (MT202 has NO charges fields 71F/71G unlike MT103)
+- Included 7 key_differences_from_mt103_pacs008 section documenting:
+  - No customer party fields (MT202 is bank-to-bank only)
+  - Field 21 (Related Reference) is mandatory in MT202, links to underlying customer payment
+  - No charge bearer or charges fields (71A/71F/71G absent in MT202)
+  - Correspondent banking fields (53/54) map poorly to pacs.009 routing model
+  - Cover payment usage patterns (field 21 references MT103, field 72 contains /INS/ codes)
+  - Simpler party structure (only financial institutions, no field F option for structured party ID)
+  - Field 72 usage patterns (heavily structured for bank-to-bank instructions)
+- All mapping entries include transform_type, direction, data_loss_risk, transform_details, notes
+- Included truncation_rule for MX->MT direction where field lengths differ
+- Included examples for key transformations (field 21 related reference, field 32A splitting)
+- Validated JSON file with jq (100% valid)
+- Reused mappings/mapping.schema.json from SPEC-012 (confirmed schema is reusable across all MT/MX pairs)
+- Committed changes with proper message format
+
+Files changed:
+- mappings/mt202_pacs009.json (new, 542 lines)
+- scripts/ralph/prd.json (updated SPEC-013 passes: true)
+
+**Learnings for future iterations:**
+- MT202 is fundamentally different from MT103: bank-to-bank only, no customer parties
+- MT202 field 21 (Related Reference) is mandatory and critical for cover payment scenarios - links back to underlying MT103
+- MT202 has NO charge-related fields (71A/71F/71G) unlike MT103 - charges handled through bilateral agreements
+- Correspondent banking fields (53/54) in MT202 represent older SWIFT reimbursement model that doesn't map well to ISO 20022
+- pacs.009 uses InstgAgt (instructing agent) instead of DbtrAgt (debtor agent) since this is institution-to-institution transfer
+- Field 58 (Beneficiary Institution) maps to Cdtr/Id/OrgId/AnyBIC (organization BIC), not Cdtr/Nm (customer name) as in MT103
+- Cover payment concept: MT202 backs MT103, field 21 contains MT103 field 20 reference, field 72 contains /INS/ codes
+- pacs.009 SvcLvl can indicate cover payment with code 'G002' (cover) but structure differs from MT separation
+- MT202 field 72 is heavily used for structured bank-to-bank instructions (/INS/, /ACC/, /REF/ codes) unlike MT103 free-text
+- The same mapping.schema.json works perfectly for MT202/pacs.009, confirming reusable design
+- Data loss is primarily in correspondent banking fields (53/54) which have no semantic equivalent in pacs.009
+- MT202 to pacs.009 mapping is simpler than MT103 to pacs.008 due to fewer optional fields and institutional-only parties
+- Field ordering in MT202 is simpler: 20, 21, [13C], 32A, then optional institution fields in sequence
+- When translating MT202->pacs.009, must default ChrgBr (charge bearer) as it's often mandatory in MX but absent in MT202
+---
