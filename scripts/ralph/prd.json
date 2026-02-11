@@ -315,7 +315,7 @@
         "Each test file has a companion .meta.json"
       ],
       "priority": 19,
-      "passes": false,
+      "passes": true,
       "notes": "These should be semantically equivalent to the MT103 samples where possible, to enable round-trip testing."
     },
     {

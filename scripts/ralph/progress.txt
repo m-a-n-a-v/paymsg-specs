@@ -889,3 +889,65 @@ Files changed:
 - Account lines in party fields (50K, 59) prefixed with / and max 34 characters
 - The .meta.json format is flexible - can include additional structured data like sepa_specific_attributes or correspondent_banking_chain for richer documentation
 ---
+## 2026-02-10 - SPEC-019
+- Implemented sample pacs.008.001.10 test messages with comprehensive coverage
+- Created 7 pacs.008 test files (5 valid scenarios + 2 invalid scenarios)
+- Created 7 companion .meta.json files documenting test coverage and expected validation results
+- Valid test messages:
+  - minimal_valid.xml: Minimal pacs.008 with only required elements (GrpHdr + single CdtTrfTxInf with mandatory fields)
+  - full_valid.xml: Complete pacs.008 with all optional elements including payment type info, charges, intermediary agents, structured addresses, regulatory reporting, and structured remittance information
+  - sepa_credit.xml: SEPA-compliant EUR transfer (DE->FR) with SEPA service level, TARGET2 clearing, SHAR charge bearer, IBANs, UETR tracking, INST local instrument
+  - usd_wire.xml: US domestic Fedwire transfer (Bank of America->JPMorgan Chase) with HIGH priority, DEBT charge bearer, same-day settlement, US account numbers (no IBANs)
+  - multi_transaction.xml: Batch message with 3 CdtTrfTxInf entries from same debtor to different creditors, demonstrating NbOfTxs=3 and TtlIntrBkSttlmAmt=15750.50 totaling
+- Invalid test messages:
+  - invalid_missing_element.xml: Missing required GrpHdr element to test XSD schema validation failure
+  - invalid_bad_currency.xml: Contains invalid currency code "XYZ" to test business rule validation (PACS008-CY01 failure)
+- All messages use correct ISO 20022 namespace: urn:iso:std:iso:20022:tech:xsd:pacs.008.001.10
+- All messages use realistic but fictional data:
+  - Valid BICs from major banks: DEUTDEFF, BNPAFRPP, CHASUS33, BOFAUS3N, CITIUS33
+  - Valid IBANs passing Mod-97 validation (DE, FR)
+  - Proper currency decimal handling: EUR/USD with period decimal separator (1000.00), not comma as in MT format
+  - Fictional customer names, addresses, and references
+- All 7 .meta.json files validated with jq (100% valid JSON)
+- Committed all 14 files with proper message format
+
+Files changed:
+- testdata/mx/pacs.008/minimal_valid.xml (new)
+- testdata/mx/pacs.008/minimal_valid.xml.meta.json (new)
+- testdata/mx/pacs.008/full_valid.xml (new)
+- testdata/mx/pacs.008/full_valid.xml.meta.json (new)
+- testdata/mx/pacs.008/sepa_credit.xml (new)
+- testdata/mx/pacs.008/sepa_credit.xml.meta.json (new)
+- testdata/mx/pacs.008/usd_wire.xml (new)
+- testdata/mx/pacs.008/usd_wire.xml.meta.json (new)
+- testdata/mx/pacs.008/multi_transaction.xml (new)
+- testdata/mx/pacs.008/multi_transaction.xml.meta.json (new)
+- testdata/mx/pacs.008/invalid_missing_element.xml (new)
+- testdata/mx/pacs.008/invalid_missing_element.xml.meta.json (new)
+- testdata/mx/pacs.008/invalid_bad_currency.xml (new)
+- testdata/mx/pacs.008/invalid_bad_currency.xml.meta.json (new)
+- scripts/ralph/prd.json (updated SPEC-019 passes: true)
+
+**Learnings for future iterations:**
+- pacs.008 messages are semantically equivalent to MT103 but with richer structure and full Unicode support
+- Decimal separator in MX messages uses period (1000.00) not comma as in MT messages (1000,00) - critical for round-trip testing
+- ISO 20022 namespace must be exact: urn:iso:std:iso:20022:tech:xsd:pacs.008.001.10 (includes version 10)
+- GrpHdr is mandatory and contains batch-level metadata: MsgId, CreDtTm, NbOfTxs, TtlIntrBkSttlmAmt, InstgAgt, InstdAgt
+- Multiple CdtTrfTxInf entries in single message enable batch processing (unlike MT103 which is always single transaction)
+- SEPA requirements mirror MT103 SEPA tests: EUR currency, SHAR/SHA charge bearer, IBANs mandatory, SEPA service level code, TARGET2 clearing
+- Fedwire characteristics: USD, DEBT charge bearer common, same-day settlement typical, HIGH priority for urgent transfers, proprietary service level codes
+- UETR (Unique End-to-End Transaction Reference) uses UUID format for gpi tracking: 8-4-4-4-12 hex format
+- ChrgBr codes differ from MT: SHAR (not SHA), DEBT (not OUR), CRED (not BEN) - 4 letters not 3
+- US domestic transfers typically use account numbers in Othr/Id, not IBANs
+- Invalid test messages should document both XSD schema validation failures (missing required elements) and business validation failures (invalid reference data)
+- Test metadata format can include rich structured documentation: test_coverage arrays, business_rules_expected_to_pass/fail, expected_errors with detailed explanations
+- Category-specific attributes in metadata (sepa_specific_attributes, fedwire_specific_attributes, batch_specific_attributes) provide valuable context
+- Messages should be semantically equivalent to MT103 test cases where possible for round-trip translation testing
+- Address fields support full Unicode (Champs-Élysées) unlike MT which requires ASCII transliteration (Champs-Elysees)
+- Payment type information (PmtTpInf) is optional but valuable: InstrPrty, SvcLvl, LclInstrm, CtgyPurp
+- Structured remittance information (Strd) can reference documents with type codes, numbers, and dates
+- Regulatory reporting (RgltryRptg) uses codes and free-text information fields
+- Charges information (ChrgsInf) can repeat for multiple charge entries from different agents
+- Instructions for agents (InstrForCdtrAgt, InstrForNxtAgt) use code+text format
+- The .meta.json format is flexible and should document not just pass/fail but which specific business rules are expected to pass or fail
+---
