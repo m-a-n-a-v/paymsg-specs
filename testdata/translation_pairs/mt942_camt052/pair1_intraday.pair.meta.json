@@ -1,0 +1,251 @@
+{
+  "pair_name": "pair1_intraday",
+  "description": "Intraday account report (MT942/camt.052) with transaction summary",
+  "mt_type": "MT942",
+  "mx_type": "camt.052.001.10",
+  "scenario": "Interim transaction report generated during the day showing 2 transactions and summary totals",
+  "fields_mapped_1_to_1": [
+    {
+      "mt_field": "20",
+      "mx_path": "Rpt/Id and GrpHdr/MsgId",
+      "value": "INTR20260210001",
+      "notes": "Report reference"
+    },
+    {
+      "mt_field": "25",
+      "mx_path": "Rpt/Acct/Id/IBAN",
+      "value": "DE89370400440532013000",
+      "notes": "Account identification"
+    }
+  ],
+  "fields_split": [
+    {
+      "mt_field": "13D",
+      "mt_value": "260210+1430",
+      "mx_paths": [
+        {
+          "path": "GrpHdr/CreDtTm and Rpt/CreDtTm",
+          "value": "2026-02-10T14:30:00Z",
+          "notes": "Date and time of report creation"
+        },
+        {
+          "path": "Rpt/FrToDt/ToDtTm",
+          "value": "2026-02-10T14:30:00Z",
+          "notes": "Report covers transactions up to this time"
+        }
+      ]
+    },
+    {
+      "mt_field": "34F",
+      "mt_value": "EUR50000,00",
+      "mx_paths": [
+        {
+          "path": "Rpt/Bal[Tp/Cd=FWAV]/Amt",
+          "value": "50000.00 EUR",
+          "notes": "Forward available balance amount"
+        },
+        {
+          "path": "Rpt/Bal[Tp/Cd=FWAV]/CdtDbtInd",
+          "value": "CRDT",
+          "notes": "Credit indicator (no D/C mark in field 34F means credit)"
+        }
+      ]
+    },
+    {
+      "mt_field": "90D",
+      "mt_value": "5EUR8000,00",
+      "mx_paths": [
+        {
+          "path": "Rpt/TxsSummry/TtlDbtNtries/NbOfNtries",
+          "value": "5",
+          "notes": "Number of debit entries"
+        },
+        {
+          "path": "Rpt/TxsSummry/TtlDbtNtries/Sum",
+          "value": "8000.00 EUR",
+          "notes": "Total debit amount"
+        }
+      ]
+    },
+    {
+      "mt_field": "90C",
+      "mt_value": "8EUR23000,00",
+      "mx_paths": [
+        {
+          "path": "Rpt/TxsSummry/TtlCdtNtries/NbOfNtries",
+          "value": "8",
+          "notes": "Number of credit entries"
+        },
+        {
+          "path": "Rpt/TxsSummry/TtlCdtNtries/Sum",
+          "value": "23000.00 EUR",
+          "notes": "Total credit amount"
+        }
+      ]
+    },
+    {
+      "mt_field": "61 (entries)",
+      "mt_value": "Transaction entries",
+      "mx_paths": [
+        {
+          "path": "Rpt/Ntry",
+          "value": "Entry details with amount, date, type, references",
+          "notes": "Same structure as MT940/camt.053 entries"
+        }
+      ]
+    },
+    {
+      "mt_field": "86 (entry info)",
+      "mt_value": "Entry details",
+      "mx_paths": [
+        {
+          "path": "Rpt/Ntry/NtryDtls/TxDtls",
+          "value": "Transaction details with parties and remittance info",
+          "notes": "Same structure as MT940/camt.053"
+        }
+      ]
+    }
+  ],
+  "fields_merged": [
+    {
+      "mx_paths": [
+        "Rpt/TxsSummry/TtlDbtNtries/NbOfNtries",
+        "Rpt/TxsSummry/TtlDbtNtries/Sum"
+      ],
+      "mt_field": "90D",
+      "mt_value": "5EUR8000,00",
+      "notes": "MX to MT: merge debit count and sum into field 90D"
+    },
+    {
+      "mx_paths": [
+        "Rpt/TxsSummry/TtlCdtNtries/NbOfNtries",
+        "Rpt/TxsSummry/TtlCdtNtries/Sum"
+      ],
+      "mt_field": "90C",
+      "mt_value": "8EUR23000,00",
+      "notes": "MX to MT: merge credit count and sum into field 90C"
+    }
+  ],
+  "fields_transformed": [
+    {
+      "mt_field": "13D date/time format",
+      "mt_value": "260210+1430",
+      "mx_path": "GrpHdr/CreDtTm",
+      "mx_value": "2026-02-10T14:30:00Z",
+      "transform_type": "datetime format",
+      "notes": "MT uses YYMMDD+HHMM, MX uses ISO 8601 timestamp"
+    },
+    {
+      "mt_field": "28C",
+      "mt_value": "5/1",
+      "mx_path": "N/A",
+      "mx_value": "N/A",
+      "transform_type": "optional",
+      "notes": "Statement sequence number - report 5, page 1"
+    }
+  ],
+  "fields_defaulted_mt_to_mx": [
+    {
+      "mx_path": "GrpHdr/MsgId",
+      "mx_value": "INTR20260210001",
+      "source": "MT field 20",
+      "notes": "Message ID from report reference"
+    },
+    {
+      "mx_path": "GrpHdr/CreDtTm and Rpt/CreDtTm",
+      "mx_value": "2026-02-10T14:30:00Z",
+      "source": "MT field 13D",
+      "notes": "Creation timestamp from field 13D"
+    },
+    {
+      "mx_path": "Rpt/FrToDt/FrDtTm",
+      "mx_value": "2026-02-10T00:00:00Z",
+      "source": "Start of day from field 13D date",
+      "notes": "Intraday report assumed to start from beginning of day"
+    },
+    {
+      "mx_path": "Rpt/FrToDt/ToDtTm",
+      "mx_value": "2026-02-10T14:30:00Z",
+      "source": "MT field 13D",
+      "notes": "Report covers up to this timestamp"
+    },
+    {
+      "mx_path": "Rpt/Acct/Ccy",
+      "mx_value": "EUR",
+      "source": "Derived from field 34F currency",
+      "notes": "Account currency"
+    },
+    {
+      "mx_path": "Rpt/Acct/Svcr",
+      "mx_value": "DEUTDEFFXXX",
+      "source": "MT Block 1 sender BIC",
+      "notes": "Account servicer"
+    },
+    {
+      "mx_path": "Rpt/TxsSummry/TtlNtries",
+      "mx_value": "Calculated from 90C and 90D",
+      "source": "Sum of credit and debit entries",
+      "notes": "Total entries summary with net amount"
+    }
+  ],
+  "fields_lost_mt_to_mx": [],
+  "fields_lost_mx_to_mt": [
+    {
+      "mx_path": "Rpt/FrToDt",
+      "value": "From/to datetime range",
+      "reason": "MT942 field 13D only has report creation time, not explicit from/to range",
+      "data_loss_risk": "low",
+      "notes": "Typically intraday reports cover from start of day to report time"
+    },
+    {
+      "mx_path": "Rpt/TxsSummry/TtlNtries (net amount detail)",
+      "value": "Net entry calculation",
+      "reason": "MT942 has 90C and 90D separately but no explicit net field",
+      "data_loss_risk": "none",
+      "notes": "Net can be calculated from 90C minus 90D"
+    }
+  ],
+  "key_differences_from_mt940_camt053": [
+    {
+      "difference": "No opening/closing balances",
+      "details": "MT942 has no field 60F/62F (opening/closing booked balances). MT940 is end-of-day final statement, MT942 is intraday interim report."
+    },
+    {
+      "difference": "Floor limit summary fields 90C/90D",
+      "details": "MT942 has fields 90C (total credit entries) and 90D (total debit entries) for transaction summary. MT940 does not have these summary fields."
+    },
+    {
+      "difference": "Field 34F instead of 64",
+      "details": "MT942 uses field 34F (floor limit indicator) for available balance. MT940 uses field 64 (closing available balance)."
+    },
+    {
+      "difference": "Field 13D timestamp",
+      "details": "MT942 has field 13D (date/time indication) showing when report was generated. MT940 has no timestamp field, only dates in balance fields."
+    },
+    {
+      "difference": "Interim vs final",
+      "details": "MT942 reports are generated during the day (interim), MT940 is end-of-day (final). This affects balance type codes: FWAV vs OPBD/CLBD/ITAV."
+    }
+  ],
+  "transaction_summary": {
+    "total_credits": {
+      "count": 8,
+      "amount": 23000.00
+    },
+    "total_debits": {
+      "count": 5,
+      "amount": 8000.00
+    },
+    "net": {
+      "amount": 15000.00,
+      "direction": "credit"
+    },
+    "notes": "Summary totals in fields 90C and 90D. Actual entries shown are subset (2 of 13 total transactions)."
+  },
+  "round_trip_lossless": false,
+  "round_trip_notes": "MT->MX->MT preserves all interim report data including summary totals. MX->MT->MX loses the from/to datetime range detail (only report creation time preserved in MT). Field 13D provides timestamp which MT940 lacks.",
+  "validation_notes": {
+    "mt_validation": "Valid MT942 interim report. Field 13D provides timestamp. Fields 90C/90D provide transaction summaries. Field 34F shows available balance. Actual entry count (2) is less than summary totals (13 total), which is normal for filtered/large reports.",
+    "mx_validation": "Valid camt.052 interim account report. TxsSummry provides detailed transaction summaries. FrToDt shows reporting period. Balance type FWAV indicates forward available (interim)."
+  }
+}

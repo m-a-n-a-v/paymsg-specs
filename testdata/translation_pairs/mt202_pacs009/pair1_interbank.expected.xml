@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.009.001.10">
+  <FICdtTrf>
+    <GrpHdr>
+      <MsgId>FITRF20260210999</MsgId>
+      <CreDtTm>2026-02-10T12:00:00Z</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <TtlIntrBkSttlmAmt Ccy="USD">100000.00</TtlIntrBkSttlmAmt>
+      <IntrBkSttlmDt>2026-02-10</IntrBkSttlmDt>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>CHASUS33XXX</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>DEUTDEFFXXX</BICFI>
+        </FinInstnId>
+      </InstdAgt>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>FITRF20260210999</InstrId>
+        <EndToEndId>FITRF20260210999</EndToEndId>
+        <TxId>REL-MT103-456789</TxId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="USD">100000.00</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2026-02-10</IntrBkSttlmDt>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>CHASUS33XXX</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>DEUTDEFFXXX</BICFI>
+        </FinInstnId>
+      </InstdAgt>
+      <IntrmyAgt1>
+        <FinInstnId>
+          <BICFI>IRVTUS3NXXX</BICFI>
+        </FinInstnId>
+      </IntrmyAgt1>
+      <IntrmyAgt2>
+        <FinInstnId>
+          <BICFI>COBADEFFXXX</BICFI>
+        </FinInstnId>
+      </IntrmyAgt2>
+      <Cdtr>
+        <FinInstnId>
+          <BICFI>DEUTDEFFXXX</BICFI>
+        </FinInstnId>
+      </Cdtr>
+      <CdtrAgt>
+        <FinInstnId>
+          <BICFI>DEUTDEFFXXX</BICFI>
+        </FinInstnId>
+      </CdtrAgt>
+      <InstrForNxtAgt>
+        <InstrInf>/INS/PRIORITY PAYMENT</InstrInf>
+      </InstrForNxtAgt>
+    </CdtTrfTxInf>
+  </FICdtTrf>
+</Document>

@@ -1,0 +1,182 @@
+{
+  "pair_name": "pair1_interbank",
+  "description": "Financial institution transfer (MT202/pacs.009) with intermediary routing",
+  "mt_type": "MT202",
+  "mx_type": "pacs.009.001.10",
+  "scenario": "USD interbank transfer from US to Germany with two intermediary banks, includes related reference and instruction info",
+  "fields_mapped_1_to_1": [
+    {
+      "mt_field": "20",
+      "mx_path": "CdtTrfTxInf/PmtId/InstrId and EndToEndId",
+      "value": "FITRF20260210999",
+      "notes": "Transaction reference used for instruction ID and end-to-end ID"
+    },
+    {
+      "mt_field": "21",
+      "mx_path": "CdtTrfTxInf/PmtId/TxId",
+      "value": "REL-MT103-456789",
+      "notes": "Related reference - often links to underlying customer payment (MT103)"
+    },
+    {
+      "mt_field": "52A",
+      "mx_path": "CdtTrfTxInf/InstgAgt/FinInstnId/BICFI",
+      "value": "CHASUS33",
+      "notes": "Ordering institution"
+    },
+    {
+      "mt_field": "53A",
+      "mx_path": "CdtTrfTxInf/IntrmyAgt1/FinInstnId/BICFI",
+      "value": "IRVTUS3N",
+      "notes": "Sender's correspondent (first intermediary)"
+    },
+    {
+      "mt_field": "56A",
+      "mx_path": "CdtTrfTxInf/IntrmyAgt2/FinInstnId/BICFI",
+      "value": "COBADEFF",
+      "notes": "Intermediary institution (second intermediary)"
+    },
+    {
+      "mt_field": "57A",
+      "mx_path": "CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI",
+      "value": "DEUTDEFF",
+      "notes": "Account with institution (creditor agent)"
+    },
+    {
+      "mt_field": "58A",
+      "mx_path": "CdtTrfTxInf/Cdtr/FinInstnId/BICFI",
+      "value": "DEUTDEFF",
+      "notes": "Beneficiary institution (creditor)"
+    },
+    {
+      "mt_field": "72",
+      "mx_path": "CdtTrfTxInf/InstrForNxtAgt/InstrInf",
+      "value": "/INS/PRIORITY PAYMENT",
+      "notes": "Sender to receiver information becomes instruction for next agent"
+    }
+  ],
+  "fields_split": [
+    {
+      "mt_field": "32A",
+      "mt_value": "260210USD100000,00",
+      "mx_paths": [
+        {
+          "path": "CdtTrfTxInf/IntrBkSttlmDt and GrpHdr/IntrBkSttlmDt",
+          "value": "2026-02-10",
+          "notes": "Settlement date"
+        },
+        {
+          "path": "CdtTrfTxInf/IntrBkSttlmAmt and GrpHdr/TtlIntrBkSttlmAmt",
+          "value": "100000.00 USD",
+          "notes": "Settlement amount and currency"
+        }
+      ]
+    }
+  ],
+  "fields_merged": [
+    {
+      "mx_paths": [
+        "CdtTrfTxInf/IntrBkSttlmDt",
+        "CdtTrfTxInf/IntrBkSttlmAmt"
+      ],
+      "mt_field": "32A",
+      "mt_value": "260210USD100000,00",
+      "notes": "MX to MT: merge settlement date, currency, and amount into field 32A"
+    }
+  ],
+  "fields_transformed": [
+    {
+      "mt_field": "Block 1/2 BICs",
+      "mt_value": "CHASUS33 -> DEUTDEFF",
+      "mx_path": "GrpHdr/InstgAgt and InstdAgt",
+      "mx_value": "CHASUS33XXX -> DEUTDEFFXXX",
+      "transform_type": "BIC normalization",
+      "notes": "MT BIC8 expanded to BIC11 with XXX for MX"
+    }
+  ],
+  "fields_defaulted_mt_to_mx": [
+    {
+      "mx_path": "GrpHdr/MsgId",
+      "mx_value": "FITRF20260210999",
+      "source": "MT field 20",
+      "notes": "Message ID from transaction reference"
+    },
+    {
+      "mx_path": "GrpHdr/CreDtTm",
+      "mx_value": "2026-02-10T12:00:00Z",
+      "source": "Generated timestamp",
+      "notes": "Creation timestamp not in MT202"
+    },
+    {
+      "mx_path": "GrpHdr/NbOfTxs",
+      "mx_value": "1",
+      "source": "Single transaction",
+      "notes": "MT202 is always single transaction, MX pacs.009 can be batch"
+    },
+    {
+      "mx_path": "GrpHdr/TtlIntrBkSttlmAmt",
+      "mx_value": "100000.00 USD",
+      "source": "Sum of transaction amounts (only 1 in this case)",
+      "notes": "Total settlement amount at message level"
+    },
+    {
+      "mx_path": "GrpHdr/IntrBkSttlmDt",
+      "mx_value": "2026-02-10",
+      "source": "MT field 32A date",
+      "notes": "Settlement date also at group header level"
+    },
+    {
+      "mx_path": "CdtTrfTxInf/PmtId/EndToEndId",
+      "mx_value": "FITRF20260210999",
+      "source": "MT field 20 (no UETR)",
+      "notes": "EndToEndId from transaction reference"
+    }
+  ],
+  "fields_lost_mt_to_mx": [],
+  "fields_lost_mx_to_mt": [
+    {
+      "mx_path": "GrpHdr/CreDtTm",
+      "value": "2026-02-10T12:00:00Z",
+      "reason": "MT202 has no creation timestamp field",
+      "data_loss_risk": "medium",
+      "notes": "Timestamp precision lost"
+    },
+    {
+      "mx_path": "GrpHdr/MsgId (if different from InstrId)",
+      "value": "FITRF20260210999",
+      "reason": "MT field 20 is transaction reference",
+      "data_loss_risk": "low",
+      "notes": "Message-level ID vs transaction-level ID distinction lost"
+    },
+    {
+      "mx_path": "GrpHdr/TtlIntrBkSttlmAmt (for batch)",
+      "value": "Total amount",
+      "reason": "MT202 is single transaction, no batch totals",
+      "data_loss_risk": "certain",
+      "notes": "If MX has multiple transactions, only one can map to single MT202"
+    }
+  ],
+  "key_differences_from_mt103_pacs008": [
+    {
+      "difference": "No customer parties",
+      "details": "MT202/pacs.009 is institution-to-institution. No field 50 (ordering customer) or 59 (beneficiary customer). Only fields 52/58 (institutions)."
+    },
+    {
+      "difference": "No charge bearer field",
+      "details": "MT202 has no field 71A (details of charges). Charges are settled separately between institutions."
+    },
+    {
+      "difference": "No remittance information",
+      "details": "MT202 has no field 70 (remittance info). This is bank-to-bank cover, underlying customer details are in the related MT103 (field 21 reference)."
+    },
+    {
+      "difference": "Simpler structure",
+      "details": "MT202 is simpler - mainly routing information (52/53/54/56/57/58) and settlement details (32A)."
+    }
+  ],
+  "round_trip_lossless": false,
+  "round_trip_notes": "MT->MX->MT preserves all interbank transfer details. MX->MT->MX loses creation timestamp. Field 21 related reference is important for linking to underlying customer payment (MT103). If MX pacs.009 contains batch (multiple CdtTrfTxInf), only first transaction can be translated to MT202.",
+  "validation_notes": {
+    "mt_validation": "Valid MT202 with all routing fields. Field 21 relates to underlying customer payment. Field 72 provides instructions for processing.",
+    "mx_validation": "Valid pacs.009 with instructing/instructed agents, intermediaries, creditor, and creditor agent. All mandatory elements present."
+  }
+}

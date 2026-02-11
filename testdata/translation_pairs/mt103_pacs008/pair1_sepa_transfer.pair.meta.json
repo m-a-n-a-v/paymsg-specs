@@ -1,0 +1,220 @@
+{
+  "pair_name": "pair1_sepa_transfer",
+  "description": "SEPA EUR credit transfer between German and French banks with remittance information",
+  "mt_type": "MT103",
+  "mx_type": "pacs.008.001.10",
+  "scenario": "Cross-border SEPA payment with UETR tracking, shared charges, and unstructured remittance info",
+  "fields_mapped_1_to_1": [
+    {
+      "mt_field": "20",
+      "mx_path": "CdtTrfTxInf/PmtId/InstrId",
+      "value": "SEPA20260210001",
+      "notes": "Transaction reference number maps directly"
+    },
+    {
+      "mt_field": "Block 3:121",
+      "mx_path": "CdtTrfTxInf/PmtId/UETR",
+      "value": "a3f2c8e1-4b5d-6789-abcd-ef0123456789",
+      "notes": "UETR UUID for end-to-end tracking"
+    },
+    {
+      "mt_field": "50K account line",
+      "mx_path": "CdtTrfTxInf/DbtrAcct/Id/IBAN",
+      "value": "DE89370400440532013000",
+      "notes": "Ordering customer account"
+    },
+    {
+      "mt_field": "59 account line",
+      "mx_path": "CdtTrfTxInf/CdtrAcct/Id/IBAN",
+      "value": "FR1420041010050500013M02606",
+      "notes": "Beneficiary customer account"
+    },
+    {
+      "mt_field": "70",
+      "mx_path": "CdtTrfTxInf/RmtInf/Ustrd",
+      "value": "INVOICE INV-2026-0142",
+      "notes": "Remittance information"
+    }
+  ],
+  "fields_split": [
+    {
+      "mt_field": "32A",
+      "mt_value": "260210EUR2500,00",
+      "mx_paths": [
+        {
+          "path": "CdtTrfTxInf/IntrBkSttlmDt",
+          "value": "2026-02-10",
+          "notes": "Date portion (YYMMDD -> YYYY-MM-DD)"
+        },
+        {
+          "path": "CdtTrfTxInf/IntrBkSttlmAmt",
+          "value": "2500.00 EUR",
+          "notes": "Currency and amount (comma -> period decimal)"
+        }
+      ]
+    },
+    {
+      "mt_field": "50K name and address lines",
+      "mt_value": "MUELLER GMBH / HAUPTSTRASSE 12 / 60313 FRANKFURT / GERMANY",
+      "mx_paths": [
+        {
+          "path": "CdtTrfTxInf/Dbtr/Nm",
+          "value": "MUELLER GMBH",
+          "notes": "First line is name"
+        },
+        {
+          "path": "CdtTrfTxInf/Dbtr/PstlAdr/AdrLine",
+          "value": "HAUPTSTRASSE 12 / 60313 FRANKFURT",
+          "notes": "Subsequent lines are address, country extracted separately"
+        },
+        {
+          "path": "CdtTrfTxInf/Dbtr/PstlAdr/Ctry",
+          "value": "DE",
+          "notes": "Country name GERMANY converted to ISO code DE"
+        }
+      ]
+    },
+    {
+      "mt_field": "59 name and address lines",
+      "mt_value": "DUPONT SARL / 15 RUE DE LA PAIX / 75001 PARIS / FRANCE",
+      "mx_paths": [
+        {
+          "path": "CdtTrfTxInf/Cdtr/Nm",
+          "value": "DUPONT SARL",
+          "notes": "First line is name"
+        },
+        {
+          "path": "CdtTrfTxInf/Cdtr/PstlAdr/AdrLine",
+          "value": "15 RUE DE LA PAIX / 75001 PARIS",
+          "notes": "Subsequent lines are address, country extracted separately"
+        },
+        {
+          "path": "CdtTrfTxInf/Cdtr/PstlAdr/Ctry",
+          "value": "FR",
+          "notes": "Country name FRANCE converted to ISO code FR"
+        }
+      ]
+    }
+  ],
+  "fields_merged": [
+    {
+      "mx_paths": [
+        "CdtTrfTxInf/IntrBkSttlmDt",
+        "CdtTrfTxInf/IntrBkSttlmAmt"
+      ],
+      "mt_field": "32A",
+      "mt_value": "260210EUR2500,00",
+      "notes": "MX to MT: merge settlement date + currency + amount into single field"
+    },
+    {
+      "mx_paths": [
+        "CdtTrfTxInf/Dbtr/Nm",
+        "CdtTrfTxInf/Dbtr/PstlAdr/AdrLine",
+        "CdtTrfTxInf/Dbtr/PstlAdr/Ctry"
+      ],
+      "mt_field": "50K",
+      "mt_value": "MUELLER GMBH / HAUPTSTRASSE 12 / 60313 FRANKFURT / DE",
+      "notes": "MX to MT: merge name + address lines + country code into field 50K"
+    },
+    {
+      "mx_paths": [
+        "CdtTrfTxInf/Cdtr/Nm",
+        "CdtTrfTxInf/Cdtr/PstlAdr/AdrLine",
+        "CdtTrfTxInf/Cdtr/PstlAdr/Ctry"
+      ],
+      "mt_field": "59",
+      "mt_value": "DUPONT SARL / 15 RUE DE LA PAIX / 75001 PARIS / FR",
+      "notes": "MX to MT: merge name + address lines + country code into field 59"
+    }
+  ],
+  "fields_transformed": [
+    {
+      "mt_field": "71A",
+      "mt_value": "SHA",
+      "mx_path": "CdtTrfTxInf/ChrgBr",
+      "mx_value": "SHAR",
+      "transform_type": "lookup",
+      "notes": "Charge bearer code: MT SHA -> MX SHAR, MT OUR -> MX DEBT, MT BEN -> MX CRED"
+    },
+    {
+      "mt_field": "23B",
+      "mt_value": "CRED",
+      "mx_path": "CdtTrfTxInf/PmtTpInf/LclInstrm/Prtry",
+      "mx_value": "CRED",
+      "transform_type": "direct",
+      "notes": "Bank operation code maps to proprietary local instrument code"
+    },
+    {
+      "mt_field": "Block 1/2 BICs",
+      "mt_value": "DEUTDEFF -> BNPAFRPP",
+      "mx_path": "GrpHdr/InstgAgt and InstdAgt",
+      "mx_value": "DEUTDEFFXXX -> BNPAFRPPXXX",
+      "transform_type": "BIC normalization",
+      "notes": "MT BIC8 expanded to BIC11 with XXX for MX, reverse truncates XXX if present"
+    }
+  ],
+  "fields_defaulted_mt_to_mx": [
+    {
+      "mx_path": "GrpHdr/MsgId",
+      "mx_value": "SEPA20260210001",
+      "source": "Derived from MT field 20",
+      "notes": "Message ID is mandatory in MX but not in MT, derived from transaction reference"
+    },
+    {
+      "mx_path": "GrpHdr/CreDtTm",
+      "mx_value": "2026-02-10T10:00:00",
+      "source": "Generated from current timestamp or settlement date",
+      "notes": "Creation date/time is mandatory in MX but not in MT"
+    },
+    {
+      "mx_path": "GrpHdr/NbOfTxs",
+      "mx_value": "1",
+      "source": "Always 1 for single MT103 message",
+      "notes": "MT103 is always single transaction, MX pacs.008 can be batch"
+    },
+    {
+      "mx_path": "CdtTrfTxInf/PmtId/EndToEndId",
+      "mx_value": "a3f2c8e1-4b5d-6789-abcd-ef0123456789",
+      "source": "MT Block 3:121 (UETR) if present, else MT field 20",
+      "notes": "EndToEndId is mandatory in MX, use UETR if available"
+    }
+  ],
+  "fields_lost_mt_to_mx": [
+    {
+      "mt_field": "Block 1 session/sequence numbers",
+      "value": "0000000000",
+      "reason": "MT envelope metadata, not preserved in MX message content",
+      "data_loss_risk": "low",
+      "notes": "Session numbers are transport-level metadata"
+    }
+  ],
+  "fields_lost_mx_to_mt": [
+    {
+      "mx_path": "GrpHdr/CreDtTm",
+      "value": "2026-02-10T10:00:00",
+      "reason": "MT103 has no creation timestamp field, only settlement date",
+      "data_loss_risk": "medium",
+      "notes": "Creation timestamp precision lost, only date preserved in field 32A"
+    },
+    {
+      "mx_path": "GrpHdr/MsgId",
+      "value": "SEPA20260210001",
+      "reason": "MT103 field 20 is transaction reference, not message ID",
+      "data_loss_risk": "low",
+      "notes": "If MsgId differs from InstrId, MsgId is lost"
+    },
+    {
+      "mx_path": "CdtTrfTxInf/Dbtr/PstlAdr/AdrLine (multiple)",
+      "value": "HAUPTSTRASSE 12, 60313 FRANKFURT",
+      "reason": "MT field 50K has max 4 lines of 35 chars, may need concatenation",
+      "data_loss_risk": "possible",
+      "notes": "Long addresses may be truncated or merged"
+    }
+  ],
+  "round_trip_lossless": false,
+  "round_trip_notes": "MT->MX->MT is nearly lossless for this simple case. MX->MT->MX loses creation timestamp precision and potentially message-level IDs if they differ from transaction IDs. Address formatting may change due to line length constraints.",
+  "validation_notes": {
+    "mt_validation": "All mandatory MT103 fields present, BICs valid, IBANs valid, charge bearer valid",
+    "mx_validation": "All mandatory pacs.008 elements present, amounts positive, dates valid, BICs valid"
+  }
+}

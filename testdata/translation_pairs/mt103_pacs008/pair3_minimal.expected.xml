@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <FIToFICstmrCdtTrf>
+    <GrpHdr>
+      <MsgId>MIN123456</MsgId>
+      <CreDtTm>2026-02-10T09:00:00</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>BNPAFRPPXXX</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>DEUTDEFFXXX</BICFI>
+        </FinInstnId>
+      </InstdAgt>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>MIN123456</InstrId>
+        <EndToEndId>MIN123456</EndToEndId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="EUR">500.00</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2026-02-10</IntrBkSttlmDt>
+      <ChrgBr>SHAR</ChrgBr>
+      <Dbtr>
+        <Nm>ALICE MARTIN</Nm>
+        <PstlAdr>
+          <AdrLine>10 AVENUE FOCH</AdrLine>
+          <AdrLine>75016 PARIS</AdrLine>
+        </PstlAdr>
+      </Dbtr>
+      <DbtrAgt>
+        <FinInstnId>
+          <BICFI>BNPAFRPPXXX</BICFI>
+        </FinInstnId>
+      </DbtrAgt>
+      <CdtrAgt>
+        <FinInstnId>
+          <BICFI>DEUTDEFFXXX</BICFI>
+        </FinInstnId>
+      </CdtrAgt>
+      <Cdtr>
+        <Nm>BOB SCHMIDT</Nm>
+        <PstlAdr>
+          <AdrLine>BERLINER STR 45</AdrLine>
+          <AdrLine>10115 BERLIN</AdrLine>
+        </PstlAdr>
+      </Cdtr>
+    </CdtTrfTxInf>
+  </FIToFICstmrCdtTrf>
+</Document>

@@ -1,0 +1,241 @@
+{
+  "pair_name": "pair2_usd_wire",
+  "description": "USD wire transfer from US to UK with intermediary bank and sender charges",
+  "mt_type": "MT103",
+  "mx_type": "pacs.008.001.10",
+  "scenario": "Cross-border USD payment with intermediary routing, OUR charge bearer (sender pays all), and sender's charges declared",
+  "fields_mapped_1_to_1": [
+    {
+      "mt_field": "20",
+      "mx_path": "CdtTrfTxInf/PmtId/InstrId and EndToEndId",
+      "value": "USD20260210789",
+      "notes": "No UETR present, so field 20 used for both InstrId and EndToEndId"
+    },
+    {
+      "mt_field": "50K account",
+      "mx_path": "CdtTrfTxInf/DbtrAcct/Id/IBAN",
+      "value": "US64SVBKUS6S00000123456789",
+      "notes": "US IBAN for ordering customer"
+    },
+    {
+      "mt_field": "59 account",
+      "mx_path": "CdtTrfTxInf/CdtrAcct/Id/IBAN",
+      "value": "GB82WEST12345698765432",
+      "notes": "UK IBAN for beneficiary customer"
+    },
+    {
+      "mt_field": "56A",
+      "mx_path": "CdtTrfTxInf/IntrmyAgt1/FinInstnId/BICFI",
+      "value": "IRVTUS3N",
+      "notes": "Intermediary institution BIC"
+    },
+    {
+      "mt_field": "57A",
+      "mx_path": "CdtTrfTxInf/CdtrAgt/FinInstnId/BICFI",
+      "value": "HSBCGB2L",
+      "notes": "Account with institution (creditor agent) BIC"
+    }
+  ],
+  "fields_split": [
+    {
+      "mt_field": "32A",
+      "mt_value": "260211USD15000,00",
+      "mx_paths": [
+        {
+          "path": "CdtTrfTxInf/IntrBkSttlmDt",
+          "value": "2026-02-11",
+          "notes": "Settlement date"
+        },
+        {
+          "path": "CdtTrfTxInf/IntrBkSttlmAmt",
+          "value": "15000.00 USD",
+          "notes": "Settlement currency and amount"
+        }
+      ]
+    },
+    {
+      "mt_field": "52A",
+      "mt_value": "/12345678\\nCHASUS33",
+      "mx_paths": [
+        {
+          "path": "CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI",
+          "value": "CHASUS33XXX",
+          "notes": "Ordering institution BIC (also used as DbtrAgt)"
+        },
+        {
+          "path": "CdtTrfTxInf/DbtrAgtAcct/Id/Othr/Id",
+          "value": "12345678",
+          "notes": "Account line becomes DbtrAgtAcct"
+        }
+      ]
+    },
+    {
+      "mt_field": "50K name and address",
+      "mt_value": "TECH INNOVATIONS INC / 1234 SILICON VALLEY BLVD / SAN JOSE CA 95110 / US",
+      "mx_paths": [
+        {
+          "path": "CdtTrfTxInf/Dbtr/Nm",
+          "value": "TECH INNOVATIONS INC",
+          "notes": "First line is debtor name"
+        },
+        {
+          "path": "CdtTrfTxInf/Dbtr/PstlAdr/AdrLine",
+          "value": "1234 SILICON VALLEY BLVD / SAN JOSE CA 95110",
+          "notes": "Address lines"
+        },
+        {
+          "path": "CdtTrfTxInf/Dbtr/PstlAdr/Ctry",
+          "value": "US",
+          "notes": "Country code"
+        }
+      ]
+    },
+    {
+      "mt_field": "59 name and address",
+      "mt_value": "LONDON TECH SOLUTIONS LTD / 100 BISHOPSGATE / LONDON EC2N 4AY / GB",
+      "mx_paths": [
+        {
+          "path": "CdtTrfTxInf/Cdtr/Nm",
+          "value": "LONDON TECH SOLUTIONS LTD",
+          "notes": "First line is creditor name"
+        },
+        {
+          "path": "CdtTrfTxInf/Cdtr/PstlAdr/AdrLine",
+          "value": "100 BISHOPSGATE / LONDON EC2N 4AY",
+          "notes": "Address lines"
+        },
+        {
+          "path": "CdtTrfTxInf/Cdtr/PstlAdr/Ctry",
+          "value": "GB",
+          "notes": "Country code"
+        }
+      ]
+    },
+    {
+      "mt_field": "71F",
+      "mt_value": "USD25,00",
+      "mx_paths": [
+        {
+          "path": "CdtTrfTxInf/ChrgsInf/Amt",
+          "value": "25.00 USD",
+          "notes": "Sender's charges amount"
+        },
+        {
+          "path": "CdtTrfTxInf/ChrgsInf/Agt",
+          "value": "CHASUS33XXX",
+          "notes": "Charge agent defaults to debtor agent"
+        }
+      ]
+    }
+  ],
+  "fields_merged": [
+    {
+      "mx_paths": [
+        "CdtTrfTxInf/IntrBkSttlmDt",
+        "CdtTrfTxInf/IntrBkSttlmAmt"
+      ],
+      "mt_field": "32A",
+      "mt_value": "260211USD15000,00",
+      "notes": "MX to MT: merge date + currency + amount into field 32A"
+    },
+    {
+      "mx_paths": [
+        "CdtTrfTxInf/Dbtr/Nm",
+        "CdtTrfTxInf/Dbtr/PstlAdr"
+      ],
+      "mt_field": "50K",
+      "notes": "MX to MT: merge name and address into field 50K lines"
+    },
+    {
+      "mx_paths": [
+        "CdtTrfTxInf/Cdtr/Nm",
+        "CdtTrfTxInf/Cdtr/PstlAdr"
+      ],
+      "mt_field": "59",
+      "notes": "MX to MT: merge name and address into field 59 lines"
+    },
+    {
+      "mx_paths": [
+        "CdtTrfTxInf/DbtrAgt/FinInstnId/BICFI",
+        "CdtTrfTxInf/DbtrAgtAcct/Id"
+      ],
+      "mt_field": "52A",
+      "mt_value": "/12345678\\nCHASUS33",
+      "notes": "MX to MT: merge account and BIC into field 52A"
+    }
+  ],
+  "fields_transformed": [
+    {
+      "mt_field": "71A",
+      "mt_value": "OUR",
+      "mx_path": "CdtTrfTxInf/ChrgBr",
+      "mx_value": "DEBT",
+      "transform_type": "lookup",
+      "notes": "Charge bearer: MT OUR -> MX DEBT (debtor pays all charges)"
+    },
+    {
+      "mt_field": "33B",
+      "mt_value": "USD15000,00",
+      "mx_path": "CdtTrfTxInf/InstdAmt",
+      "mx_value": "15000.00 USD",
+      "transform_type": "direct",
+      "notes": "Currency and amount of instructed amount (same as settlement in this case)"
+    },
+    {
+      "mt_field": "72",
+      "mt_value": "/BNF/PAYMENT FOR SOFTWARE LICENSE",
+      "mx_path": "CdtTrfTxInf/InstrForCdtrAgt/InstrInf",
+      "mx_value": "/BNF/PAYMENT FOR SOFTWARE LICENSE",
+      "transform_type": "direct",
+      "notes": "Sender to receiver information becomes instruction for creditor agent"
+    }
+  ],
+  "fields_defaulted_mt_to_mx": [
+    {
+      "mx_path": "GrpHdr/MsgId",
+      "mx_value": "USD20260210789",
+      "source": "Derived from MT field 20",
+      "notes": "Message ID derived from transaction reference"
+    },
+    {
+      "mx_path": "GrpHdr/CreDtTm",
+      "mx_value": "2026-02-10T15:30:00",
+      "source": "Generated timestamp",
+      "notes": "Creation timestamp not in MT, must be generated"
+    },
+    {
+      "mx_path": "GrpHdr/NbOfTxs",
+      "mx_value": "1",
+      "source": "Single transaction",
+      "notes": "MT103 is always single transaction"
+    },
+    {
+      "mx_path": "CdtTrfTxInf/PmtId/EndToEndId",
+      "mx_value": "USD20260210789",
+      "source": "MT field 20 (no UETR present)",
+      "notes": "No Block 3:121 UETR, so use field 20"
+    },
+    {
+      "mx_path": "CdtTrfTxInf/ChrgsInf/Agt",
+      "mx_value": "CHASUS33XXX",
+      "source": "Derived from DbtrAgt",
+      "notes": "Charge agent defaults to debtor agent when not specified"
+    }
+  ],
+  "fields_lost_mt_to_mx": [],
+  "fields_lost_mx_to_mt": [
+    {
+      "mx_path": "GrpHdr/CreDtTm",
+      "value": "2026-02-10T15:30:00",
+      "reason": "MT103 has no creation timestamp field",
+      "data_loss_risk": "medium",
+      "notes": "Timestamp precision lost"
+    }
+  ],
+  "round_trip_lossless": false,
+  "round_trip_notes": "MT->MX->MT preserves all payment details. MX->MT->MX loses creation timestamp. Field 72 sender-to-receiver info maps to InstrForCdtrAgt which is a reasonable semantic mapping but not perfect equivalence.",
+  "validation_notes": {
+    "mt_validation": "OUR charge bearer with field 71F sender's charges is valid. Intermediary bank (56A) present for routing. Field 52A ordering institution with account.",
+    "mx_validation": "DEBT charge bearer with ChrgsInf. Intermediary agent specified. All mandatory elements present."
+  }
+}

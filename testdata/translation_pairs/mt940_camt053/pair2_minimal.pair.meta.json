@@ -1,0 +1,132 @@
+{
+  "pair_name": "pair2_minimal",
+  "description": "Minimal MT940/camt.053 statement with no transactions - only balances",
+  "mt_type": "MT940",
+  "mx_type": "camt.053.001.10",
+  "scenario": "Zero-activity statement - no transactions occurred, opening and closing balances are equal",
+  "fields_mapped_1_to_1": [
+    {
+      "mt_field": "20",
+      "mx_path": "Stmt/Id and GrpHdr/MsgId",
+      "value": "STMTMIN001",
+      "notes": "Statement reference"
+    },
+    {
+      "mt_field": "25",
+      "mx_path": "Stmt/Acct/Id/IBAN",
+      "value": "FR7630006000011234567890189",
+      "notes": "Account identification - French IBAN"
+    }
+  ],
+  "fields_split": [
+    {
+      "mt_field": "60F",
+      "mt_value": "C260210EUR10000,00",
+      "mx_paths": [
+        {
+          "path": "Stmt/Bal[Tp/Cd=OPBD]",
+          "value": "OPBD balance with EUR 10000.00 CRDT on 2026-02-10",
+          "notes": "Opening booked final balance"
+        }
+      ]
+    },
+    {
+      "mt_field": "62F",
+      "mt_value": "C260210EUR10000,00",
+      "mx_paths": [
+        {
+          "path": "Stmt/Bal[Tp/Cd=CLBD]",
+          "value": "CLBD balance with EUR 10000.00 CRDT on 2026-02-10",
+          "notes": "Closing booked final balance"
+        }
+      ]
+    }
+  ],
+  "fields_merged": [
+    {
+      "mx_paths": [
+        "Stmt/Bal[Tp/Cd=OPBD]"
+      ],
+      "mt_field": "60F",
+      "notes": "Opening balance merged into single field"
+    },
+    {
+      "mx_paths": [
+        "Stmt/Bal[Tp/Cd=CLBD]"
+      ],
+      "mt_field": "62F",
+      "notes": "Closing balance merged into single field"
+    }
+  ],
+  "fields_transformed": [
+    {
+      "mt_field": "28C",
+      "mt_value": "1/1",
+      "mx_path": "N/A",
+      "mx_value": "N/A",
+      "transform_type": "optional",
+      "notes": "Statement number/sequence - first statement, page 1"
+    }
+  ],
+  "fields_defaulted_mt_to_mx": [
+    {
+      "mx_path": "GrpHdr/MsgId",
+      "mx_value": "STMTMIN001",
+      "source": "MT field 20",
+      "notes": "Message ID from statement reference"
+    },
+    {
+      "mx_path": "GrpHdr/CreDtTm",
+      "mx_value": "2026-02-10T23:59:00Z",
+      "source": "Generated from statement date",
+      "notes": "End-of-day timestamp"
+    },
+    {
+      "mx_path": "Stmt/CreDtTm",
+      "mx_value": "2026-02-10T23:59:00Z",
+      "source": "Generated from statement date",
+      "notes": "Statement creation timestamp"
+    },
+    {
+      "mx_path": "Stmt/Acct/Ccy",
+      "mx_value": "EUR",
+      "source": "Derived from balance currency",
+      "notes": "Account currency from field 60F"
+    },
+    {
+      "mx_path": "Stmt/Acct/Svcr",
+      "mx_value": "BNPAFRPPXXX",
+      "source": "MT Block 1 sender BIC",
+      "notes": "Account servicer is message sender"
+    }
+  ],
+  "fields_lost_mt_to_mx": [],
+  "fields_lost_mx_to_mt": [
+    {
+      "mx_path": "GrpHdr/CreDtTm and Stmt/CreDtTm",
+      "value": "2026-02-10T23:59:00Z",
+      "reason": "MT940 has no timestamp fields",
+      "data_loss_risk": "medium",
+      "notes": "Time portion lost, only date preserved"
+    }
+  ],
+  "missing_entries": {
+    "mt_field_61_count": 0,
+    "mx_ntry_count": 0,
+    "notes": "No transactions in this statement period - valid scenario for accounts with no activity"
+  },
+  "balance_calculation": {
+    "opening": 10000.00,
+    "credits": 0.00,
+    "debits": 0.00,
+    "closing": 10000.00,
+    "formula": "10000.00 + 0.00 - 0.00 = 10000.00",
+    "validates": true
+  },
+  "round_trip_lossless": true,
+  "round_trip_notes": "This minimal example is nearly perfectly round-trip lossless. MT->MX->MT preserves all data. MX->MT->MX only loses timestamp precision. No entries means no field 61/86 complexity.",
+  "validation_notes": {
+    "mt_validation": "Valid minimal MT940. No field 61 entries is valid - represents zero activity period. Opening and closing balances equal.",
+    "mx_validation": "Valid minimal camt.053. Ntry elements are optional - can have statement with only balances. Opening and closing balances equal indicates no activity."
+  }
+}

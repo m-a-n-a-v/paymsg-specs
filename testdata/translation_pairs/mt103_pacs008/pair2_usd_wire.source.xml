@@ -1,0 +1,89 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.10" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+  <FIToFICstmrCdtTrf>
+    <GrpHdr>
+      <MsgId>USD20260210789</MsgId>
+      <CreDtTm>2026-02-10T15:30:00</CreDtTm>
+      <NbOfTxs>1</NbOfTxs>
+      <InstgAgt>
+        <FinInstnId>
+          <BICFI>CHASUS33XXX</BICFI>
+        </FinInstnId>
+      </InstgAgt>
+      <InstdAgt>
+        <FinInstnId>
+          <BICFI>HSBCGB2LXXX</BICFI>
+        </FinInstnId>
+      </InstdAgt>
+    </GrpHdr>
+    <CdtTrfTxInf>
+      <PmtId>
+        <InstrId>USD20260210789</InstrId>
+        <EndToEndId>USD20260210789</EndToEndId>
+      </PmtId>
+      <IntrBkSttlmAmt Ccy="USD">15000.00</IntrBkSttlmAmt>
+      <IntrBkSttlmDt>2026-02-11</IntrBkSttlmDt>
+      <InstdAmt Ccy="USD">15000.00</InstdAmt>
+      <ChrgBr>DEBT</ChrgBr>
+      <ChrgsInf>
+        <Amt Ccy="USD">25.00</Amt>
+        <Agt>
+          <FinInstnId>
+            <BICFI>CHASUS33XXX</BICFI>
+          </FinInstnId>
+        </Agt>
+      </ChrgsInf>
+      <Dbtr>
+        <Nm>TECH INNOVATIONS INC</Nm>
+        <PstlAdr>
+          <AdrLine>1234 SILICON VALLEY BLVD</AdrLine>
+          <AdrLine>SAN JOSE CA 95110</AdrLine>
+          <Ctry>US</Ctry>
+        </PstlAdr>
+      </Dbtr>
+      <DbtrAcct>
+        <Id>
+          <IBAN>US64SVBKUS6S00000123456789</IBAN>
+        </Id>
+      </DbtrAcct>
+      <DbtrAgt>
+        <FinInstnId>
+          <BICFI>CHASUS33XXX</BICFI>
+        </FinInstnId>
+      </DbtrAgt>
+      <DbtrAgtAcct>
+        <Id>
+          <Othr>
+            <Id>12345678</Id>
+          </Othr>
+        </Id>
+      </DbtrAgtAcct>
+      <IntrmyAgt1>
+        <FinInstnId>
+          <BICFI>IRVTUS3NXXX</BICFI>
+        </FinInstnId>
+      </IntrmyAgt1>
+      <CdtrAgt>
+        <FinInstnId>
+          <BICFI>HSBCGB2LXXX</BICFI>
+        </FinInstnId>
+      </CdtrAgt>
+      <Cdtr>
+        <Nm>LONDON TECH SOLUTIONS LTD</Nm>
+        <PstlAdr>
+          <AdrLine>100 BISHOPSGATE</AdrLine>
+          <AdrLine>LONDON EC2N 4AY</AdrLine>
+          <Ctry>GB</Ctry>
+        </PstlAdr>
+      </Cdtr>
+      <CdtrAcct>
+        <Id>
+          <IBAN>GB82WEST12345698765432</IBAN>
+        </Id>
+      </CdtrAcct>
+      <InstrForCdtrAgt>
+        <InstrInf>/BNF/PAYMENT FOR SOFTWARE LICENSE</InstrInf>
+      </InstrForCdtrAgt>
+    </CdtTrfTxInf>
+  </FIToFICstmrCdtTrf>
+</Document>

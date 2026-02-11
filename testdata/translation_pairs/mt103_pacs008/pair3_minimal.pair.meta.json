@@ -1,0 +1,191 @@
+{
+  "pair_name": "pair3_minimal",
+  "description": "Minimal MT103/pacs.008 with only mandatory fields, no account numbers",
+  "mt_type": "MT103",
+  "mx_type": "pacs.008.001.10",
+  "scenario": "Minimal valid payment with only required fields - no IBAN/account numbers, no optional routing, no remittance info",
+  "fields_mapped_1_to_1": [
+    {
+      "mt_field": "20",
+      "mx_path": "CdtTrfTxInf/PmtId/InstrId and EndToEndId",
+      "value": "MIN123456",
+      "notes": "Transaction reference used for both IDs"
+    }
+  ],
+  "fields_split": [
+    {
+      "mt_field": "32A",
+      "mt_value": "260210EUR500,00",
+      "mx_paths": [
+        {
+          "path": "CdtTrfTxInf/IntrBkSttlmDt",
+          "value": "2026-02-10",
+          "notes": "Settlement date"
+        },
+        {
+          "path": "CdtTrfTxInf/IntrBkSttlmAmt",
+          "value": "500.00 EUR",
+          "notes": "Settlement amount and currency"
+        }
+      ]
+    },
+    {
+      "mt_field": "50K name and address",
+      "mt_value": "ALICE MARTIN / 10 AVENUE FOCH / 75016 PARIS",
+      "mx_paths": [
+        {
+          "path": "CdtTrfTxInf/Dbtr/Nm",
+          "value": "ALICE MARTIN",
+          "notes": "Debtor name only, no account"
+        },
+        {
+          "path": "CdtTrfTxInf/Dbtr/PstlAdr/AdrLine",
+          "value": "10 AVENUE FOCH / 75016 PARIS",
+          "notes": "Address lines, no country extracted"
+        }
+      ]
+    },
+    {
+      "mt_field": "59 name and address",
+      "mt_value": "BOB SCHMIDT / BERLINER STR 45 / 10115 BERLIN",
+      "mx_paths": [
+        {
+          "path": "CdtTrfTxInf/Cdtr/Nm",
+          "value": "BOB SCHMIDT",
+          "notes": "Creditor name only, no account"
+        },
+        {
+          "path": "CdtTrfTxInf/Cdtr/PstlAdr/AdrLine",
+          "value": "BERLINER STR 45 / 10115 BERLIN",
+          "notes": "Address lines, no country extracted"
+        }
+      ]
+    }
+  ],
+  "fields_merged": [
+    {
+      "mx_paths": [
+        "CdtTrfTxInf/IntrBkSttlmDt",
+        "CdtTrfTxInf/IntrBkSttlmAmt"
+      ],
+      "mt_field": "32A",
+      "mt_value": "260210EUR500,00",
+      "notes": "Date, currency, and amount merged into single MT field"
+    },
+    {
+      "mx_paths": [
+        "CdtTrfTxInf/Dbtr/Nm",
+        "CdtTrfTxInf/Dbtr/PstlAdr"
+      ],
+      "mt_field": "50K",
+      "notes": "Name and address merged, no account line"
+    },
+    {
+      "mx_paths": [
+        "CdtTrfTxInf/Cdtr/Nm",
+        "CdtTrfTxInf/Cdtr/PstlAdr"
+      ],
+      "mt_field": "59",
+      "notes": "Name and address merged, no account line"
+    }
+  ],
+  "fields_transformed": [
+    {
+      "mt_field": "71A",
+      "mt_value": "SHA",
+      "mx_path": "CdtTrfTxInf/ChrgBr",
+      "mx_value": "SHAR",
+      "transform_type": "lookup",
+      "notes": "Shared charges: SHA <-> SHAR"
+    },
+    {
+      "mt_field": "23B",
+      "mt_value": "CRED",
+      "mx_path": "Not mapped in minimal case",
+      "mx_value": "N/A",
+      "transform_type": "optional",
+      "notes": "Bank operation code not essential for MX, can be omitted or added to PmtTpInf"
+    }
+  ],
+  "fields_defaulted_mt_to_mx": [
+    {
+      "mx_path": "GrpHdr/MsgId",
+      "mx_value": "MIN123456",
+      "source": "MT field 20",
+      "notes": "Message ID from transaction reference"
+    },
+    {
+      "mx_path": "GrpHdr/CreDtTm",
+      "mx_value": "2026-02-10T09:00:00",
+      "source": "Generated timestamp",
+      "notes": "No timestamp in MT, must generate"
+    },
+    {
+      "mx_path": "GrpHdr/NbOfTxs",
+      "mx_value": "1",
+      "source": "Single transaction",
+      "notes": "MT103 is always one transaction"
+    },
+    {
+      "mx_path": "GrpHdr/InstgAgt",
+      "mx_value": "BNPAFRPPXXX",
+      "source": "MT Block 1 sender BIC",
+      "notes": "Instructing agent from Block 1"
+    },
+    {
+      "mx_path": "GrpHdr/InstdAgt",
+      "mx_value": "DEUTDEFFXXX",
+      "source": "MT Block 2 receiver BIC",
+      "notes": "Instructed agent from Block 2"
+    },
+    {
+      "mx_path": "CdtTrfTxInf/DbtrAgt",
+      "mx_value": "BNPAFRPPXXX",
+      "source": "Defaults to instructing agent (Block 1)",
+      "notes": "No field 52 present, so DbtrAgt defaults to sender"
+    },
+    {
+      "mx_path": "CdtTrfTxInf/CdtrAgt",
+      "mx_value": "DEUTDEFFXXX",
+      "source": "Defaults to instructed agent (Block 2)",
+      "notes": "No field 57 present, so CdtrAgt defaults to receiver"
+    }
+  ],
+  "fields_lost_mt_to_mx": [],
+  "fields_lost_mx_to_mt": [
+    {
+      "mx_path": "GrpHdr/CreDtTm",
+      "value": "2026-02-10T09:00:00",
+      "reason": "No timestamp field in MT103",
+      "data_loss_risk": "medium",
+      "notes": "Time portion lost in translation"
+    },
+    {
+      "mx_path": "GrpHdr/MsgId (if different from InstrId)",
+      "value": "MIN123456",
+      "reason": "MT field 20 is transaction reference, not message ID",
+      "data_loss_risk": "low",
+      "notes": "Message-level ID vs transaction-level ID distinction lost"
+    }
+  ],
+  "missing_in_both": [
+    {
+      "field": "Account numbers",
+      "notes": "Neither DbtrAcct nor CdtrAcct present - payment is name-based only. This is valid but uncommon in modern payments."
+    },
+    {
+      "field": "Remittance information",
+      "notes": "No field 70 in MT, no RmtInf in MX"
+    },
+    {
+      "field": "Intermediary routing",
+      "notes": "No fields 52/53/54/55/56/57 in MT, no intermediary agents in MX"
+    }
+  ],
+  "round_trip_lossless": true,
+  "round_trip_notes": "This minimal example is nearly perfectly round-trip lossless for payment content. MT->MX->MT preserves all payment details. MX->MT->MX only loses creation timestamp precision and potentially message ID if it differs from instruction ID. The lack of account numbers means there's less structural complexity to lose in translation.",
+  "validation_notes": {
+    "mt_validation": "Valid minimal MT103. No account numbers is unusual but valid. Field 50K and 59 have name and address only.",
+    "mx_validation": "Valid minimal pacs.008. DbtrAcct and CdtrAcct are optional in pacs.008 schema, though strongly recommended in practice."
+  }
+}

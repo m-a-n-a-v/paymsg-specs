@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Document xmlns="urn:iso:std:iso:20022:tech:xsd:camt.053.001.10">
+  <BkToCstmrStmt>
+    <GrpHdr>
+      <MsgId>STMTMIN001</MsgId>
+      <CreDtTm>2026-02-10T23:59:00Z</CreDtTm>
+    </GrpHdr>
+    <Stmt>
+      <Id>STMTMIN001</Id>
+      <CreDtTm>2026-02-10T23:59:00Z</CreDtTm>
+      <Acct>
+        <Id>
+          <IBAN>FR7630006000011234567890189</IBAN>
+        </Id>
+        <Ccy>EUR</Ccy>
+        <Svcr>
+          <FinInstnId>
+            <BICFI>BNPAFRPPXXX</BICFI>
+          </FinInstnId>
+        </Svcr>
+      </Acct>
+      <Bal>
+        <Tp>
+          <CdOrPrtry>
+            <Cd>OPBD</Cd>
+          </CdOrPrtry>
+          <SubTp>
+            <Cd>FINAL</Cd>
+          </SubTp>
+        </Tp>
+        <Amt Ccy="EUR">10000.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Dt>
+          <Dt>2026-02-10</Dt>
+        </Dt>
+      </Bal>
+      <Bal>
+        <Tp>
+          <CdOrPrtry>
+            <Cd>CLBD</Cd>
+          </CdOrPrtry>
+          <SubTp>
+            <Cd>FINAL</Cd>
+          </SubTp>
+        </Tp>
+        <Amt Ccy="EUR">10000.00</Amt>
+        <CdtDbtInd>CRDT</CdtDbtInd>
+        <Dt>
+          <Dt>2026-02-10</Dt>
+        </Dt>
+      </Bal>
+    </Stmt>
+  </BkToCstmrStmt>
+</Document>

@@ -1,0 +1,328 @@
+{
+  "pair_name": "pair1_daily_statement",
+  "description": "Daily bank statement with 3 transactions - credits and debits",
+  "mt_type": "MT940",
+  "mx_type": "camt.053.001.10",
+  "scenario": "End-of-day bank statement with opening/closing balances and 3 booked entries",
+  "fields_mapped_1_to_1": [
+    {
+      "mt_field": "20",
+      "mx_path": "Stmt/Id and GrpHdr/MsgId",
+      "value": "STMT20260210001",
+      "notes": "Statement reference used for both statement ID and message ID"
+    },
+    {
+      "mt_field": "25",
+      "mx_path": "Stmt/Acct/Id/IBAN",
+      "value": "DE89370400440532013000",
+      "notes": "Account identification"
+    }
+  ],
+  "fields_split": [
+    {
+      "mt_field": "60F (Opening Balance)",
+      "mt_value": "C260209EUR25000,00",
+      "mx_paths": [
+        {
+          "path": "Stmt/Bal[Tp/Cd=OPBD]/Amt",
+          "value": "25000.00 EUR",
+          "notes": "Opening balance amount"
+        },
+        {
+          "path": "Stmt/Bal[Tp/Cd=OPBD]/CdtDbtInd",
+          "value": "CRDT",
+          "notes": "C = Credit = CRDT"
+        },
+        {
+          "path": "Stmt/Bal[Tp/Cd=OPBD]/Dt",
+          "value": "2026-02-09",
+          "notes": "Opening balance date"
+        },
+        {
+          "path": "Stmt/Bal[Tp/Cd=OPBD]/Tp/Cd",
+          "value": "OPBD",
+          "notes": "60F = Opening Booked balance"
+        },
+        {
+          "path": "Stmt/Bal[Tp/Cd=OPBD]/Tp/SubTp/Cd",
+          "value": "FINAL",
+          "notes": "F suffix = Final balance"
+        }
+      ]
+    },
+    {
+      "mt_field": "62F (Closing Balance)",
+      "mt_value": "C260210EUR37000,00",
+      "mx_paths": [
+        {
+          "path": "Stmt/Bal[Tp/Cd=CLBD]/Amt",
+          "value": "37000.00 EUR",
+          "notes": "Closing balance amount"
+        },
+        {
+          "path": "Stmt/Bal[Tp/Cd=CLBD]/CdtDbtInd",
+          "value": "CRDT",
+          "notes": "C = Credit"
+        },
+        {
+          "path": "Stmt/Bal[Tp/Cd=CLBD]/Dt",
+          "value": "2026-02-10",
+          "notes": "Closing balance date"
+        },
+        {
+          "path": "Stmt/Bal[Tp/Cd=CLBD]/Tp/Cd",
+          "value": "CLBD",
+          "notes": "62F = Closing Booked balance"
+        }
+      ]
+    },
+    {
+      "mt_field": "64 (Available Balance)",
+      "mt_value": "C260210EUR37000,00",
+      "mx_paths": [
+        {
+          "path": "Stmt/Bal[Tp/Cd=ITAV]/Amt",
+          "value": "37000.00 EUR",
+          "notes": "Available balance amount"
+        },
+        {
+          "path": "Stmt/Bal[Tp/Cd=ITAV]/CdtDbtInd",
+          "value": "CRDT",
+          "notes": "C = Credit"
+        },
+        {
+          "path": "Stmt/Bal[Tp/Cd=ITAV]/Dt",
+          "value": "2026-02-10",
+          "notes": "Available balance date"
+        },
+        {
+          "path": "Stmt/Bal[Tp/Cd=ITAV]/Tp/Cd",
+          "value": "ITAV",
+          "notes": "64 = Interim Available balance"
+        }
+      ]
+    },
+    {
+      "mt_field": "61 (first entry)",
+      "mt_value": "2602100C5000,00NTRF0001//TRF001",
+      "mx_paths": [
+        {
+          "path": "Stmt/Ntry[1]/ValDt",
+          "value": "2026-02-10",
+          "notes": "Value date (260210 -> 2026-02-10)"
+        },
+        {
+          "path": "Stmt/Ntry[1]/BookgDt",
+          "value": "2026-02-10",
+          "notes": "Booking date (0 = same as value date)"
+        },
+        {
+          "path": "Stmt/Ntry[1]/CdtDbtInd",
+          "value": "CRDT",
+          "notes": "C = Credit"
+        },
+        {
+          "path": "Stmt/Ntry[1]/Amt",
+          "value": "5000.00 EUR",
+          "notes": "Transaction amount"
+        },
+        {
+          "path": "Stmt/Ntry[1]/BkTxCd/Prtry/Cd",
+          "value": "NTRF",
+          "notes": "Transaction type code"
+        },
+        {
+          "path": "Stmt/Ntry[1]/NtryDtls/TxDtls/Refs/AcctSvcrRef",
+          "value": "0001",
+          "notes": "Account servicer reference"
+        },
+        {
+          "path": "Stmt/Ntry[1]/NtryDtls/TxDtls/Refs/EndToEndId",
+          "value": "TRF001",
+          "notes": "Customer reference (after //)"
+        }
+      ]
+    },
+    {
+      "mt_field": "86 (first entry info)",
+      "mt_value": "?20Incoming Payment?32MUELLER GMBH?60DE91100000000123456789",
+      "mx_paths": [
+        {
+          "path": "Stmt/Ntry[1]/NtryDtls/TxDtls/RmtInf/Ustrd",
+          "value": "Incoming Payment",
+          "notes": "Field ?20 = remittance information"
+        },
+        {
+          "path": "Stmt/Ntry[1]/NtryDtls/TxDtls/RltdPties/Dbtr/Nm",
+          "value": "MUELLER GMBH",
+          "notes": "Field ?32 = counterparty name (Dbtr for credit)"
+        },
+        {
+          "path": "Stmt/Ntry[1]/NtryDtls/TxDtls/RltdPties/DbtrAcct/Id/IBAN",
+          "value": "DE91100000000123456789",
+          "notes": "Field ?60 = counterparty account"
+        }
+      ]
+    }
+  ],
+  "fields_merged": [
+    {
+      "mx_paths": [
+        "Stmt/Bal[Tp/Cd=OPBD]/CdtDbtInd",
+        "Stmt/Bal[Tp/Cd=OPBD]/Dt",
+        "Stmt/Bal[Tp/Cd=OPBD]/Amt"
+      ],
+      "mt_field": "60F",
+      "mt_value": "C260209EUR25000,00",
+      "notes": "MX to MT: merge balance type, C/D indicator, date, currency, amount into field 60F"
+    },
+    {
+      "mx_paths": [
+        "Stmt/Bal[Tp/Cd=CLBD]/CdtDbtInd",
+        "Stmt/Bal[Tp/Cd=CLBD]/Dt",
+        "Stmt/Bal[Tp/Cd=CLBD]/Amt"
+      ],
+      "mt_field": "62F",
+      "mt_value": "C260210EUR37000,00",
+      "notes": "MX to MT: merge closing balance into field 62F"
+    },
+    {
+      "mx_paths": [
+        "Stmt/Ntry/ValDt",
+        "Stmt/Ntry/BookgDt",
+        "Stmt/Ntry/CdtDbtInd",
+        "Stmt/Ntry/Amt",
+        "Stmt/Ntry/BkTxCd",
+        "Stmt/Ntry/NtryDtls/TxDtls/Refs"
+      ],
+      "mt_field": "61",
+      "notes": "MX to MT: merge entry details into field 61 compact format"
+    },
+    {
+      "mx_paths": [
+        "Stmt/Ntry/NtryDtls/TxDtls/RmtInf",
+        "Stmt/Ntry/NtryDtls/TxDtls/RltdPties"
+      ],
+      "mt_field": "86",
+      "notes": "MX to MT: merge remittance info and party details into field 86 structured format"
+    }
+  ],
+  "fields_transformed": [
+    {
+      "mt_field": "28C",
+      "mt_value": "41/1",
+      "mx_path": "N/A (statement numbering)",
+      "mx_value": "N/A",
+      "transform_type": "optional",
+      "notes": "Statement number/sequence - not typically in camt.053, can be in Stmt/LglSeqNb if needed"
+    },
+    {
+      "mt_field": "61 entry date format",
+      "mt_value": "2602100",
+      "mx_path": "Stmt/Ntry/ValDt and BookgDt",
+      "mx_value": "2026-02-10",
+      "transform_type": "date format",
+      "notes": "MT uses YYMMDD[MM] (6 or 8 chars), MX uses ISO date. Last char '0' means booking date = value date"
+    },
+    {
+      "mt_field": "60F/62F balance type",
+      "mt_value": "F suffix",
+      "mx_path": "Stmt/Bal/Tp/SubTp/Cd",
+      "mx_value": "FINAL",
+      "transform_type": "lookup",
+      "notes": "60F/62F = Final balance, 60M/62M would be Interim (INTM)"
+    },
+    {
+      "mt_field": "86 structured tags",
+      "mt_value": "?20, ?32, ?60 etc.",
+      "mx_path": "Various NtryDtls paths",
+      "mx_value": "Separate XML elements",
+      "transform_type": "structural",
+      "notes": "MT field 86 uses ?NN tags, MX uses separate elements. ?20=RmtInf, ?32=party name, ?60=account"
+    }
+  ],
+  "fields_defaulted_mt_to_mx": [
+    {
+      "mx_path": "GrpHdr/MsgId",
+      "mx_value": "STMT20260210001",
+      "source": "MT field 20",
+      "notes": "Message ID derived from statement reference"
+    },
+    {
+      "mx_path": "GrpHdr/CreDtTm",
+      "mx_value": "2026-02-10T23:59:00Z",
+      "source": "Generated from statement date + end-of-day time",
+      "notes": "Creation timestamp not in MT940"
+    },
+    {
+      "mx_path": "Stmt/CreDtTm",
+      "mx_value": "2026-02-10T23:59:00Z",
+      "source": "Generated from statement date",
+      "notes": "Statement creation timestamp not in MT940"
+    },
+    {
+      "mx_path": "Stmt/Acct/Ccy",
+      "mx_value": "EUR",
+      "source": "Derived from balance currency in field 60F",
+      "notes": "Account currency inferred from balance fields"
+    },
+    {
+      "mx_path": "Stmt/Acct/Svcr",
+      "mx_value": "DEUTDEFFXXX",
+      "source": "MT Block 1 sender BIC",
+      "notes": "Account servicer from message sender"
+    },
+    {
+      "mx_path": "Stmt/Ntry/Sts/Cd",
+      "mx_value": "BOOK",
+      "source": "Default for booked entries",
+      "notes": "MT940 is for booked transactions, status is always BOOK"
+    }
+  ],
+  "fields_lost_mt_to_mx": [
+    {
+      "mt_field": "28C",
+      "value": "41/1",
+      "reason": "Statement sequence number not always preserved in camt.053",
+      "data_loss_risk": "low",
+      "notes": "Can be mapped to LglSeqNb if needed"
+    }
+  ],
+  "fields_lost_mx_to_mt": [
+    {
+      "mx_path": "GrpHdr/CreDtTm and Stmt/CreDtTm",
+      "value": "2026-02-10T23:59:00Z",
+      "reason": "MT940 has no timestamp fields, only dates",
+      "data_loss_risk": "medium",
+      "notes": "Time precision lost"
+    },
+    {
+      "mx_path": "Stmt/Ntry/Sts",
+      "value": "BOOK",
+      "reason": "MT940 is always for booked entries, no status field",
+      "data_loss_risk": "low",
+      "notes": "Status information implicit in MT940"
+    },
+    {
+      "mx_path": "Stmt/Bal/Tp/SubTp beyond FINAL/INTM",
+      "value": "Other subtypes",
+      "reason": "MT only distinguishes F (final) vs M (interim)",
+      "data_loss_risk": "possible",
+      "notes": "Finer balance type distinctions may be lost"
+    }
+  ],
+  "balance_calculation": {
+    "opening": 25000.00,
+    "credits": 13500.00,
+    "debits": 1500.00,
+    "closing": 37000.00,
+    "formula": "25000.00 + 13500.00 - 1500.00 = 37000.00",
+    "validates": true
+  },
+  "round_trip_lossless": false,
+  "round_trip_notes": "MT->MX->MT preserves all statement and entry data. MX->MT->MX loses timestamp precision and detailed balance type subtypes. Field 86 structured content requires careful parsing in both directions.",
+  "validation_notes": {
+    "mt_validation": "Valid MT940 with opening balance, 3 entries, closing balance, and available balance. Balance arithmetic correct.",
+    "mx_validation": "Valid camt.053 with group header, statement, balances (OPBD, CLBD, ITAV), and 3 entries. All mandatory elements present."
+  }
+}
