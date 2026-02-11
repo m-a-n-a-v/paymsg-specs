@@ -1,0 +1,39 @@
+{
+  "test_name": "usd_wire",
+  "message_type": "MT103",
+  "description": "US domestic wire transfer using Fedwire system",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "USD currency",
+    "OUR charge bearer (ordering customer pays all charges)",
+    "US domestic banks (Bank of America and JPMorgan Chase)",
+    "Field 52A (Ordering Institution) with account",
+    "Field 57A (Account With Institution) with account",
+    "US-style account numbers (no IBANs)",
+    "Block 3 with MUR (tag 108) for Fedwire reference",
+    "Block 3 with UETR (tag 121) for transaction tracking",
+    "Field 70 (Remittance Information) with purchase order reference",
+    "Field 71F (Sender's Charges)",
+    "Same-day value date (typical for Fedwire)",
+    "High-value domestic transfer (USD 50,000)"
+  ],
+  "business_rules_expected_to_pass": [
+    "Amount must be positive",
+    "USD currency code valid",
+    "BICs must be valid ISO 9362 format",
+    "Charge bearer OUR is valid",
+    "Sender's charges must be positive",
+    "UETR must be valid UUID format"
+  ],
+  "fedwire_specific_attributes": {
+    "currency": "USD",
+    "charge_bearer": "OUR",
+    "ordering_bank": "BOFAUS3N",
+    "beneficiary_bank": "CHASUS33",
+    "country": "US",
+    "amount": 50000.00,
+    "settlement_system": "Fedwire",
+    "value_date": "same_day"
+  },
+  "notes": "Typical US domestic wire transfer. Uses Fedwire system for same-day settlement. OUR charge bearer means ordering customer (ACME Corporation) pays all fees. No IBANs as US doesn't use IBAN system - uses domestic account numbers instead. Bank of America to JPMorgan Chase routing. MUR field contains Fedwire reference. Amount is USD 50,000 which is common for B2B commercial payments in the US."
+}

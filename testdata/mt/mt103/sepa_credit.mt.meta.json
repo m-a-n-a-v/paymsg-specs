@@ -1,0 +1,39 @@
+{
+  "test_name": "sepa_credit",
+  "message_type": "MT103",
+  "description": "SEPA credit transfer between EU banks",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "SEPA-compliant payment structure",
+    "EUR currency (mandatory for SEPA)",
+    "Shared charges SHA (mandatory for SEPA)",
+    "IBAN for both ordering customer and beneficiary (DE and FR)",
+    "Block 3 with STP flag (tag 119) - Straight Through Processing",
+    "Block 3 with UETR (tag 121) for transaction tracking",
+    "Field 23E with SDVA (Same Day Value) instruction code",
+    "Direct payment without intermediaries (field 57A only)",
+    "EU to EU transfer (Germany to France)",
+    "Structured remittance information (field 70)",
+    "Value date T+2 (standard SEPA settlement)"
+  ],
+  "business_rules_expected_to_pass": [
+    "EUR currency requirement",
+    "SHA (shared) charges requirement",
+    "IBAN format validation for both parties",
+    "Amount within SEPA limits (under 999,999,999.99)",
+    "Valid SEPA zone BICs (DEUTDEFF, BNPAFRPP)",
+    "Country codes within SEPA zone (DE, FR)",
+    "UETR UUID format validation"
+  ],
+  "sepa_specific_attributes": {
+    "currency": "EUR",
+    "charge_bearer": "SHA",
+    "ordering_customer_country": "DE",
+    "beneficiary_country": "FR",
+    "amount": 2500.00,
+    "settlement_days": "T+2",
+    "stp_flag": true,
+    "intermediary_banks": 0
+  },
+  "notes": "Classic SEPA credit transfer scenario. German customer paying French beneficiary. Both have IBANs. Uses STP (Straight Through Processing) flag for automated processing. SHA charges as required by SEPA rulebook. Direct routing from Deutsche Bank to BNP Paribas without intermediaries. Amount is EUR 2,500.00 which is typical for B2C SEPA payments."
+}

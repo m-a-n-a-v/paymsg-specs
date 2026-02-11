@@ -1,0 +1,26 @@
+{
+  "test_name": "minimal_valid",
+  "message_type": "MT103",
+  "description": "Minimal valid MT103 with only mandatory fields",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Mandatory field 20 (Transaction Reference)",
+    "Mandatory field 23B (Bank Operation Code)",
+    "Mandatory field 32A (Value Date/Currency/Amount)",
+    "Mandatory field 50K (Ordering Customer with account and name/address)",
+    "Mandatory field 59 (Beneficiary Customer with account and name/address)",
+    "Mandatory field 71A (Details of Charges)",
+    "Basic MT message block structure (Block 1, 2, 4)",
+    "German IBAN (DE) for ordering customer",
+    "French IBAN (FR) for beneficiary",
+    "EUR currency",
+    "Shared charges (SHA) - typical for SEPA-like transfers"
+  ],
+  "business_rules_expected_to_pass": [
+    "Amount must be positive",
+    "Currency code must be valid ISO 4217",
+    "IBANs must pass Mod-97 validation",
+    "Charge bearer must be valid code (BEN/OUR/SHA)"
+  ],
+  "notes": "This is the simplest possible valid MT103. All optional fields and blocks (3, 5) are omitted. Uses realistic but fictional BICs (DEUTDEFF for Deutsche Bank, BNPAFRPP for BNP Paribas), valid IBANs, and fictional customer names."
+}

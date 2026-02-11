@@ -1,0 +1,43 @@
+{
+  "test_name": "full_valid",
+  "message_type": "MT103",
+  "description": "Complete MT103 with all optional fields populated",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "All 5 MT message blocks (1, 2, 3, 4, 5)",
+    "Block 3 with MUR (tag 108) and UETR (tag 121) for gpi tracking",
+    "Block 5 with checksum (CHK)",
+    "Field 13C (Time Indication)",
+    "Field 23E (Instruction Code) with multiple codes",
+    "Field 26T (Transaction Type Code)",
+    "Field 32A (Value Date/Currency/Amount) - EUR settlement",
+    "Field 33B (Currency/Instructed Amount) - USD instructed, with FX",
+    "Field 36 (Exchange Rate)",
+    "Field 50K (Ordering Customer with account and full address)",
+    "Field 51A (Sending Institution)",
+    "Field 52A (Ordering Institution with account)",
+    "Field 56A (Intermediary Institution) - US correspondent",
+    "Field 57A (Account With Institution with account) - French account with",
+    "Field 59 (Beneficiary Customer with IBAN and full address)",
+    "Field 70 (Remittance Information) - structured invoice reference",
+    "Field 71A (Details of Charges) - SHA",
+    "Field 71F (Sender's Charges)",
+    "Field 71G (Receiver's Charges)",
+    "Field 72 (Sender to Receiver Information) - structured instructions",
+    "Field 77B (Regulatory Reporting)",
+    "Currency conversion scenario (USD instructed -> EUR settlement)",
+    "Cross-border payment with intermediary bank (CHASUS33)",
+    "SWIFT gpi UETR tracking"
+  ],
+  "business_rules_expected_to_pass": [
+    "Amount must be positive",
+    "Exchange rate must be positive",
+    "Currency codes must be valid ISO 4217",
+    "BICs must be valid ISO 9362 format",
+    "IBANs must pass Mod-97 validation",
+    "Charge bearer must be valid code (SHA)",
+    "Sender's and receiver's charges must be positive",
+    "UETR must be valid UUID format"
+  ],
+  "notes": "Comprehensive MT103 demonstrating all major optional fields. Uses realistic but fictional data: German ordering customer, French beneficiary, US intermediary bank (JPMorgan Chase), currency conversion from USD to EUR, SWIFT gpi tracking with UETR, regulatory reporting for Belgium. Demonstrates complex payment routing and full field coverage."
+}

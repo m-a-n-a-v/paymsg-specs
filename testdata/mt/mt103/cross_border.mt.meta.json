@@ -1,0 +1,60 @@
+{
+  "test_name": "cross_border",
+  "message_type": "MT103",
+  "description": "Cross-border payment with multiple intermediary banks",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Cross-border payment (UK to Japan)",
+    "JPY currency (zero decimal places)",
+    "Complex correspondent banking chain",
+    "Field 52A (Ordering Institution) - HSBC UK",
+    "Field 53A (Sender's Correspondent) - Bank of America NY",
+    "Field 56A (Intermediary Institution) - HSBC Hong Kong",
+    "Field 57A (Account With Institution) - Sumitomo Mitsui Banking Corporation",
+    "Field 50K with UK IBAN",
+    "Field 59 with Japanese domestic account number (no IBAN)",
+    "Multi-hop routing: UK -> US -> HK -> JP",
+    "SHA charge bearer for cross-border payment",
+    "Block 3 with UETR for tracking"
+  ],
+  "business_rules_expected_to_pass": [
+    "Amount must be positive",
+    "JPY currency code valid (zero decimal places)",
+    "All BICs valid ISO 9362 format",
+    "UK IBAN passes Mod-97 validation",
+    "Charge bearer SHA is valid"
+  ],
+  "correspondent_banking_chain": {
+    "originator": {
+      "name": "British Imports Ltd",
+      "country": "GB",
+      "bank": "HSBCGB2L",
+      "account_type": "IBAN"
+    },
+    "ordering_institution": {
+      "bic": "HSBCGB2L",
+      "role": "Originating bank"
+    },
+    "senders_correspondent": {
+      "bic": "BOFAUS3N",
+      "location": "New York",
+      "role": "US correspondent for HSBC"
+    },
+    "intermediary": {
+      "bic": "HSBCHKHH",
+      "location": "Hong Kong",
+      "role": "Asia-Pacific hub for HSBC network"
+    },
+    "account_with": {
+      "bic": "SMBCJPJT",
+      "location": "Tokyo",
+      "role": "Beneficiary's bank in Japan"
+    },
+    "beneficiary": {
+      "name": "Tokyo Electronics KK",
+      "country": "JP",
+      "account_type": "domestic"
+    }
+  },
+  "notes": "Demonstrates complex cross-border payment routing from UK to Japan. Uses correspondent banking relationships: HSBC London sends through HSBC's network via Bank of America (US correspondent), then HSBC Hong Kong (regional hub), finally to beneficiary's bank Sumitomo Mitsui in Tokyo. JPY currency uses zero decimal places (5000000, not 5000000,00). British ordering customer has IBAN, Japanese beneficiary uses domestic account number. Typical for international trade payments where direct banking relationships don't exist between sender and receiver banks."
+}

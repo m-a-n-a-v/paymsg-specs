@@ -1,0 +1,26 @@
+{
+  "test_name": "invalid_missing_mandatory",
+  "message_type": "MT103",
+  "description": "Invalid MT103 missing mandatory field 32A (Value Date/Currency/Amount)",
+  "validation_expected": "fail",
+  "test_coverage": [
+    "Missing mandatory field 32A",
+    "Field 20 (Transaction Reference) present",
+    "Field 23B (Bank Operation Code) present",
+    "Field 50K (Ordering Customer) present",
+    "Field 59 (Beneficiary Customer) present",
+    "Field 71A (Details of Charges) present",
+    "Basic block structure intact (Block 1, 2, 4)"
+  ],
+  "validation_rules_expected_to_fail": [
+    "Field 32A is mandatory and must be present"
+  ],
+  "missing_field": {
+    "tag": "32A",
+    "name": "Value Date/Currency/Interbank Settled Amount",
+    "status": "M",
+    "description": "This field specifies when the payment should be settled (value date), the currency, and the amount to be transferred. It is mandatory in all MT103 messages."
+  },
+  "error_expected": "Missing mandatory field :32A: - MT103 message must include value date, currency, and amount",
+  "notes": "This test case validates that parsers correctly detect missing mandatory fields. Field 32A is one of the four mandatory fields in MT103 (along with 20, 23B, 50, 59, 71A). Without it, the message is structurally invalid and should be rejected during parsing or validation. A real-world scenario might be a malformed message due to transmission errors or incorrect message construction."
+}

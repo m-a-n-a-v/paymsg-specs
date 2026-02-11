@@ -1,0 +1,34 @@
+{
+  "test_name": "invalid_bad_bic",
+  "message_type": "MT103",
+  "description": "Invalid MT103 containing an invalid BIC code in field 57A",
+  "validation_expected": "fail",
+  "test_coverage": [
+    "All mandatory fields present (20, 23B, 32A, 50K, 59, 71A)",
+    "Basic block structure intact (Block 1, 2, 4)",
+    "Field 57A (Account With Institution) contains invalid BIC"
+  ],
+  "validation_rules_expected_to_fail": [
+    "BIC format validation for field 57A",
+    "BIC must conform to ISO 9362 format (4!a2!a2!c[3!c])"
+  ],
+  "invalid_field": {
+    "tag": "57A",
+    "name": "Account With Institution",
+    "invalid_value": "INVALID123XX",
+    "reasons_for_invalidity": [
+      "Institution code 'INVA' contains digits (should be 4 alpha characters only)",
+      "Overall format does not match BIC pattern",
+      "Country code 'LI' may be valid but institution code is malformed",
+      "BIC must be either 8 or 11 characters (INVALID123XX is 12 characters)"
+    ]
+  },
+  "correct_bic_format": {
+    "pattern": "4!a2!a2!c[3!c]",
+    "description": "Institution (4 alpha) + Country (2 alpha) + Location (2 alphanum) + Branch (3 alphanum, optional)",
+    "example_valid": "BNPAFRPPXXX",
+    "example_invalid": "INVALID123XX"
+  },
+  "error_expected": "Invalid BIC code 'INVALID123XX' in field :57A: - BIC must conform to ISO 9362 format",
+  "notes": "This test validates BIC format checking. The BIC 'INVALID123XX' violates multiple rules: it's 12 characters (invalid length), contains 'INVALID1' as institution code (contains digits, should be 4 alpha), and overall doesn't match the ISO 9362 pattern. Real-world scenarios include typos in manual entry, corrupted data transmission, or incorrect bank code lookup. The validator should catch this as a format error and reject the message."
+}
