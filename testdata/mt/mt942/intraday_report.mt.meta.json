@@ -1,0 +1,91 @@
+{
+  "test_name": "MT942 Intraday Report with Transactions",
+  "message_type": "MT942",
+  "description": "Complete MT942 interim transaction report with all key optional fields: date/time indication, floor limit, transaction lines above floor limit, and summary totals including transactions below floor limit.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "All mandatory fields: 20, 25P, 28C",
+    "Field 25P with BIC (instead of field 25)",
+    "Field 34F (Floor Limit Indicator) set to EUR 10,000",
+    "Field 13D (Date/Time Indication) with precise timestamp",
+    "Three field 61 (Statement Line) entries - all above floor limit",
+    "Each field 61 followed by field 86 with structured information",
+    "Field 90D (Number and Sum of Debit Entries) - 8 total debits",
+    "Field 90C (Number and Sum of Credit Entries) - 12 total credits",
+    "Demonstrates floor limit concept: 3 transactions listed (above 10k), but totals show 20 total transactions",
+    "Both credits and debits",
+    "EUR currency",
+    "Intraday timestamp (14:30 local time)"
+  ],
+  "business_rules_expected_to_pass": [
+    "Valid BIC in field 25P (BNPAFRPP)",
+    "Valid IBAN account",
+    "Valid currency code (EUR)",
+    "Valid date/time format (YYMMDD+HHMM)",
+    "All listed transactions (61) exceed floor limit of EUR 10,000",
+    "Summary totals (90D/90C) include both listed and unlisted transactions",
+    "Transaction codes valid (NTRF)",
+    "Structured field 86 format with subfield codes"
+  ],
+  "business_rules_expected_to_fail": [],
+  "report_details": {
+    "account_servicing_institution": "BNPAFRPP - BNP Paribas France",
+    "account": "FR7630006000011234567890189",
+    "report_number": "3",
+    "page": "1",
+    "report_timestamp": "2023-11-15 14:30 local time",
+    "floor_limit": {
+      "currency": "EUR",
+      "amount": "10,000.00"
+    },
+    "transactions_above_floor_limit": [
+      {
+        "sequence": 1,
+        "date": "2023-11-15",
+        "type": "C (Credit)",
+        "amount": "25,000.00",
+        "transaction_code": "NTRF",
+        "description": "Large Incoming Wire Transfer",
+        "note": "Above EUR 10,000 floor limit"
+      },
+      {
+        "sequence": 2,
+        "date": "2023-11-15",
+        "type": "C (Credit)",
+        "amount": "15,000.00",
+        "transaction_code": "NTRF",
+        "description": "Customer Payment Received",
+        "note": "Above EUR 10,000 floor limit"
+      },
+      {
+        "sequence": 3,
+        "date": "2023-11-15",
+        "type": "D (Debit)",
+        "amount": "22,000.00",
+        "transaction_code": "NTRF",
+        "description": "Outgoing Payment - Vendor",
+        "note": "Above EUR 10,000 floor limit"
+      }
+    ],
+    "summary_totals": {
+      "total_debits": {
+        "count": 8,
+        "amount": "45,000.00",
+        "note": "Includes 1 above floor limit (22,000) + 7 below floor limit (totaling 23,000)"
+      },
+      "total_credits": {
+        "count": 12,
+        "amount": "78,000.00",
+        "note": "Includes 2 above floor limit (25,000 + 15,000 = 40,000) + 10 below floor limit (totaling 38,000)"
+      }
+    },
+    "floor_limit_analysis": {
+      "listed_transactions": 3,
+      "unlisted_debits": 7,
+      "unlisted_credits": 10,
+      "total_transactions": 20,
+      "note": "Only 3 transactions exceed EUR 10,000 floor limit and are individually listed. The remaining 17 transactions are included only in summary totals."
+    }
+  },
+  "notes": "This MT942 demonstrates the floor limit concept that is unique to interim reporting. Field 34F sets a floor limit of EUR 10,000, meaning only transactions above this amount are individually listed in field 61. Three transactions exceed this limit and are shown in detail. However, the summary totals (90D and 90C) reveal there were actually 20 total transactions during the reporting period: 8 debits totaling EUR 45,000 and 12 credits totaling EUR 78,000. The unlisted transactions (7 debits and 10 credits) all fall below the EUR 10,000 floor limit. Field 13D provides the precise timestamp (14:30 on November 15, 2023), which is critical since multiple MT942 messages may be sent throughout the day. This is the third interim report of the day (28C:3/1). The floor limit mechanism reduces message size and processing overhead for high-volume accounts while still providing complete summary information."
+}

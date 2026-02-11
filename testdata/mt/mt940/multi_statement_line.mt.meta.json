@@ -1,0 +1,106 @@
+{
+  "test_name": "MT940 Multiple Statement Lines",
+  "message_type": "MT940",
+  "description": "MT940 statement with 6 transaction lines demonstrating various transaction types (transfers, standing orders, cheques, direct debits) with accompanying field 86 information.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "All mandatory fields present",
+    "Multiple field 61 (Statement Line) entries - 6 transactions",
+    "Each field 61 followed by field 86 (Information to Account Owner)",
+    "Various transaction types: NTRF (transfer), NSTD (standing order), NCHK (cheque), NMSC (miscellaneous), NDDT (direct debit)",
+    "Both credit (C) and debit (D) transactions",
+    "Structured field 86 format with ?20 (description), ?32 (party name), ?60 (account) subfield codes",
+    "Field 61 with bank reference (// notation)",
+    "Field 61 with supplementary details on continuation line (cheque entry)",
+    "Field 64 (Closing Available Balance)",
+    "Balance consistency validation",
+    "French IBAN account"
+  ],
+  "business_rules_expected_to_pass": [
+    "Valid IBAN format (FR7630006000011234567890189)",
+    "Valid currency code (EUR)",
+    "All transaction amounts positive (direction indicated by D/C mark)",
+    "Balance consistency: opening 50000 + credits (15000+5000+25000+12500) - debits (2500+8000) = closing 97000",
+    "Available balance (95000) less than closing balance (97000) - indicates 2000 on hold",
+    "Valid SWIFT Bank Transaction Codes (NTRF, NSTD, NCHK, NMSC, NDDT)",
+    "Valid date formats",
+    "Structured field 86 with proper subfield codes"
+  ],
+  "business_rules_expected_to_fail": [],
+  "statement_details": {
+    "account": "FR7630006000011234567890189",
+    "bank": "BNPAFRPP - BNP Paribas France",
+    "statement_number": "127",
+    "page": "1",
+    "opening_balance": {
+      "indicator": "C",
+      "date": "2023-11-14",
+      "currency": "EUR",
+      "amount": "50,000.00"
+    },
+    "closing_balance": {
+      "indicator": "C",
+      "date": "2023-11-15",
+      "currency": "EUR",
+      "amount": "97,000.00"
+    },
+    "available_balance": {
+      "indicator": "C",
+      "date": "2023-11-15",
+      "currency": "EUR",
+      "amount": "95,000.00"
+    },
+    "transactions": [
+      {
+        "sequence": 1,
+        "date": "2023-11-15",
+        "type": "C (Credit)",
+        "amount": "15,000.00",
+        "transaction_code": "NTRF - Transfer",
+        "description": "Payment from Customer A - ACME CORPORATION"
+      },
+      {
+        "sequence": 2,
+        "date": "2023-11-15",
+        "type": "C (Credit)",
+        "amount": "5,000.00",
+        "transaction_code": "NSTD - Standing Order",
+        "description": "Standing Order - Monthly Rent from PROPERTY MANAGEMENT LTD"
+      },
+      {
+        "sequence": 3,
+        "date": "2023-11-15",
+        "type": "D (Debit)",
+        "amount": "2,500.00",
+        "transaction_code": "NCHK - Cheque",
+        "description": "Cheque Payment to Office Supplies Inc"
+      },
+      {
+        "sequence": 4,
+        "date": "2023-11-15",
+        "type": "C (Credit)",
+        "amount": "25,000.00",
+        "transaction_code": "NMSC - Miscellaneous",
+        "description": "Miscellaneous Credit from International Client XYZ"
+      },
+      {
+        "sequence": 5,
+        "date": "2023-11-15",
+        "type": "D (Debit)",
+        "amount": "8,000.00",
+        "transaction_code": "NDDT - Direct Debit",
+        "description": "Direct Debit - Utilities to Power Company Ltd"
+      },
+      {
+        "sequence": 6,
+        "date": "2023-11-15",
+        "type": "C (Credit)",
+        "amount": "12,500.00",
+        "transaction_code": "NTRF - Transfer",
+        "description": "Incoming Wire Transfer from Business Partner Corp"
+      }
+    ],
+    "balance_calculation": "50000.00 + (15000 + 5000 + 25000 + 12500) - (2500 + 8000) = 97000.00"
+  },
+  "notes": "This statement demonstrates the repeating field 61+86 pattern that is typical in MT940 messages. Each transaction (field 61) is followed by additional information (field 86) using a structured format with subfield codes. The ?20 code contains the transaction description, ?32 contains the counterparty name, and ?60 contains the counterparty account (when available). The available balance (field 64) is EUR 2,000 less than the closing balance, indicating that EUR 2,000 is on hold or reserved. All transactions occurred on the same value date (2023-11-15). The statement shows a mix of transaction types commonly seen in corporate banking."
+}

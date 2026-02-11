@@ -1,0 +1,90 @@
+{
+  "test_name": "MT940 Month-End Statement",
+  "message_type": "MT940",
+  "description": "MT940 end-of-month statement with field 25P (Account with BIC), field 64 (Closing Available Balance), and multiple field 65 (Forward Available Balance) entries showing projected future balances.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Field 25P instead of field 25 (Account Identification with BIC)",
+    "Month-end statement (November 30)",
+    "Multiple transactions demonstrating common month-end activities (revenue, payroll, rent)",
+    "Field 64 (Closing Available Balance) matching closing balance",
+    "Multiple field 65 (Forward Available Balance) entries for different future dates",
+    "USD currency",
+    "US-based account (JPMorgan Chase)",
+    "Balance projections for future dates"
+  ],
+  "business_rules_expected_to_pass": [
+    "Valid BIC in field 25P (CHASUS33)",
+    "Valid currency code (USD)",
+    "Balance consistency: opening 250000 + credits (50000) - debits (45000+12000) = closing 243000",
+    "Available balance equals closing balance (no holds)",
+    "Forward balances show reasonable projections",
+    "Valid transaction codes (NTRF)",
+    "Proper field 25P format (BIC/Account)"
+  ],
+  "business_rules_expected_to_fail": [],
+  "statement_details": {
+    "account_servicing_institution": "CHASUS33 - JPMorgan Chase US",
+    "account": "1234567890",
+    "statement_number": "334",
+    "page": "1",
+    "statement_date": "2023-11-30",
+    "opening_balance": {
+      "indicator": "C",
+      "date": "2023-11-29",
+      "currency": "USD",
+      "amount": "250,000.00"
+    },
+    "closing_balance": {
+      "indicator": "C",
+      "date": "2023-11-30",
+      "currency": "USD",
+      "amount": "243,000.00"
+    },
+    "available_balance": {
+      "indicator": "C",
+      "date": "2023-11-30",
+      "currency": "USD",
+      "amount": "243,000.00"
+    },
+    "forward_available_balances": [
+      {
+        "date": "2023-12-01",
+        "amount": "243,000.00",
+        "note": "Next business day projection"
+      },
+      {
+        "date": "2023-12-15",
+        "amount": "265,000.00",
+        "note": "Mid-month projection (expected incoming payments)"
+      }
+    ],
+    "transactions": [
+      {
+        "sequence": 1,
+        "date": "2023-11-30",
+        "type": "C (Credit)",
+        "amount": "50,000.00",
+        "transaction_code": "NTRF",
+        "description": "Monthly Revenue - Client Invoices"
+      },
+      {
+        "sequence": 2,
+        "date": "2023-11-30",
+        "type": "D (Debit)",
+        "amount": "45,000.00",
+        "transaction_code": "NTRF",
+        "description": "Payroll - Monthly Salaries"
+      },
+      {
+        "sequence": 3,
+        "date": "2023-11-30",
+        "type": "D (Debit)",
+        "amount": "12,000.00",
+        "transaction_code": "NTRF",
+        "description": "Office Rent - December Payment"
+      }
+    ]
+  },
+  "notes": "This statement demonstrates a typical month-end scenario with revenue collection and monthly expense payments (payroll and rent). Field 25P is used instead of field 25, which includes the account servicing institution BIC (CHASUS33) along with the account number. Field 64 shows the available balance equals the closing balance (no funds on hold). Field 65 appears twice to show forward available balances: one for the next business day (December 1) maintaining the same balance, and another for mid-month (December 15) showing an expected increase to USD 265,000 due to anticipated incoming payments. This is useful for cash flow forecasting and treasury management."
+}

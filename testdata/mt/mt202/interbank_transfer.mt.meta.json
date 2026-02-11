@@ -1,0 +1,34 @@
+{
+  "test_name": "MT202 Interbank Transfer UK to Japan",
+  "message_type": "MT202",
+  "description": "Interbank transfer from HSBC UK to Sumitomo Mitsui Banking Corp Japan. This demonstrates a typical FI-to-FI payment using name & address options (D) for some fields.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Mandatory fields: 20, 21, 32A",
+    "Field 52D - Ordering Institution with Name & Address (D option)",
+    "Field 57A - Account With Institution with IBAN account",
+    "Field 58D - Beneficiary Institution with account and Name & Address",
+    "Field 72 - Sender to Receiver Info with structured codes",
+    "GBP currency",
+    "Cross-border UK to Japan transfer",
+    "Mixed field options (A and D) in single message"
+  ],
+  "business_rules_expected_to_pass": [
+    "Valid BIC formats (HSBCGB2L, SMBCJPJT)",
+    "Valid currency code (GBP)",
+    "Positive amount (75000.00)",
+    "Valid IBAN format in field 57A (GB29NWBK60161331926819)",
+    "Proper multi-line format for D option fields",
+    "Structured field 72 format"
+  ],
+  "business_rules_expected_to_fail": [],
+  "transfer_details": {
+    "from_institution": "HSBCGB2L - HSBC Bank PLC, London UK",
+    "to_institution": "SMBCJPJT - Sumitomo Mitsui Banking Corp, Tokyo Japan",
+    "account_with": "SMBCJPJT with IBAN GB29NWBK60161331926819",
+    "currency": "GBP",
+    "amount": "75,000.00",
+    "value_date": "2023-11-16"
+  },
+  "notes": "This MT202 uses the D (Name & Address) option for fields 52 and 58, demonstrating flexibility in party identification. Field 57A includes an IBAN account number for the nostro/vostro account that HSBC holds with Sumitomo Mitsui. Field 58D includes the final beneficiary institution account number and full name/address. Field 72 contains instructions (/INS/) and references (/REF/) to the underlying customer payment that this MT202 is covering. The related reference (21) indicates this is a cover payment for a customer payment."
+}

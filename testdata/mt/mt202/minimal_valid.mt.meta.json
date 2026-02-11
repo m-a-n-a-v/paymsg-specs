@@ -1,0 +1,22 @@
+{
+  "test_name": "MT202 Minimal Valid",
+  "message_type": "MT202",
+  "description": "Minimal valid MT202 with only mandatory fields. This represents a simple interbank transfer from Deutsche Bank (DE) to BNP Paribas (FR).",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Mandatory fields: 20 (Transaction Reference), 21 (Related Reference), 32A (Value Date/Currency/Amount)",
+    "Beneficiary institution: 58A (BIC only)",
+    "Basic block structure: Block 1 (sender), Block 2 (receiver), Block 4 (message content)",
+    "EUR currency with standard 2 decimal places",
+    "Minimal cover payment scenario"
+  ],
+  "business_rules_expected_to_pass": [
+    "Valid BIC format for beneficiary institution (58A)",
+    "Valid currency code (EUR)",
+    "Positive amount (50000.00)",
+    "Valid date format (YYMMDD)",
+    "Proper MT message block structure"
+  ],
+  "business_rules_expected_to_fail": [],
+  "notes": "This is the simplest possible MT202. Field 21 references a hypothetical MT103 customer payment that this MT202 is covering. In real scenarios, field 21 would contain the actual field 20 value from the related MT103. The beneficiary institution (field 58A) is BNP Paribas France."
+}

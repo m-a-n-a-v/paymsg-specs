@@ -1,0 +1,38 @@
+{
+  "test_name": "MT202 Full Valid with All Optional Fields",
+  "message_type": "MT202",
+  "description": "Complete MT202 with all optional fields populated. This demonstrates a complex cross-border interbank transfer from Germany to France with correspondent banking chain through US intermediaries.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "All mandatory fields: 20, 21, 32A",
+    "Block 3 user header with MUR (108) and UETR (121) for gpi tracking",
+    "Block 5 trailer with checksum",
+    "Optional field 13C (Time Indication)",
+    "Optional field 52A (Ordering Institution - Deutsche Bank)",
+    "Optional field 53A (Sender's Correspondent - Commerzbank)",
+    "Optional field 56A (Intermediary Institution - JPMorgan Chase US)",
+    "Optional field 57A (Account With Institution - Bank of America)",
+    "Optional field 58A (Beneficiary Institution - BNP Paribas with account)",
+    "Optional field 72 (Sender to Receiver Information with structured codes)",
+    "USD currency",
+    "Correspondent banking chain demonstrating complex routing"
+  ],
+  "business_rules_expected_to_pass": [
+    "All BIC formats valid (DEUTDEFF, COBADEFF, CHASUS33, BOFAUS3N, BNPAFRPP)",
+    "Valid currency code (USD)",
+    "Positive amount (125000.00)",
+    "Valid UETR UUID format in Block 3",
+    "Valid time indication format (13C)",
+    "Proper field 72 structured format with /INS/, /ACC/, /BNF/ codes"
+  ],
+  "business_rules_expected_to_fail": [],
+  "correspondent_banking_details": {
+    "ordering_institution": "DEUTDEFF - Deutsche Bank Germany",
+    "senders_correspondent": "COBADEFF - Commerzbank Germany",
+    "intermediary": "CHASUS33 - JPMorgan Chase US",
+    "account_with": "BOFAUS3N - Bank of America US",
+    "beneficiary_institution": "BNPAFRPP - BNP Paribas France",
+    "routing_path": "DEUTDEFF -> COBADEFF -> CHASUS33 -> BOFAUS3N -> BNPAFRPP"
+  },
+  "notes": "This MT202 demonstrates a cover payment with full correspondent banking chain. The ordering institution (52A) is Deutsche Bank, which uses Commerzbank as its correspondent (53A). The payment is routed through JPMorgan Chase (56A) to Bank of America (57A), which holds the account for the final beneficiary institution BNP Paribas (58A). Field 72 contains structured information including intermediary instructions (/INS/), account details (/ACC/), and beneficiary information (/BNF/). The UETR in Block 3 enables end-to-end gpi tracking."
+}

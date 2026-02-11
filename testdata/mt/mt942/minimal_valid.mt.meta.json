@@ -1,0 +1,27 @@
+{
+  "test_name": "MT942 Minimal Valid",
+  "message_type": "MT942",
+  "description": "Minimal valid MT942 with only mandatory fields and no optional fields. This represents an interim report with no transactions to report.",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Mandatory fields only: 20 (Transaction Reference), 25 (Account Identification), 28C (Statement Number)",
+    "No optional fields (13D, 34F, 61, 86, 90D, 90C)",
+    "No transaction lines",
+    "IBAN account format",
+    "Minimal interim report structure"
+  ],
+  "business_rules_expected_to_pass": [
+    "Valid IBAN format (DE89370400440532013000)",
+    "Valid report number format (1/1)",
+    "Proper MT message block structure"
+  ],
+  "business_rules_expected_to_fail": [],
+  "report_details": {
+    "account": "DE89370400440532013000",
+    "report_number": "1",
+    "page": "1",
+    "transactions": [],
+    "note": "No transactions reported in this interim report"
+  },
+  "notes": "This is the simplest possible MT942. It contains only the three mandatory fields and reports no transaction activity. In practice, MT942 messages typically include at least some optional fields like 13D (Date/Time Indication) or summary totals (90D/90C), but they are technically optional. This minimal message could be sent when an interim report is required but there is no activity to report during the period."
+}

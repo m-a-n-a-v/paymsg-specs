@@ -1,0 +1,42 @@
+{
+  "test_name": "MT940 Minimal Valid",
+  "message_type": "MT940",
+  "description": "Minimal valid MT940 with only mandatory fields and no transactions. This represents a statement where the account had no activity (opening balance equals closing balance).",
+  "validation_expected": "pass",
+  "test_coverage": [
+    "Mandatory fields: 20 (Transaction Reference), 25 (Account Identification), 28C (Statement Number), 60F (Opening Balance Final), 62F (Closing Balance Final)",
+    "No transaction lines (field 61 is optional)",
+    "IBAN account number format",
+    "EUR currency",
+    "Credit balance (positive account balance)",
+    "Balance consistency: opening = closing (no transactions)"
+  ],
+  "business_rules_expected_to_pass": [
+    "Valid IBAN format (DE89370400440532013000)",
+    "Valid currency code (EUR)",
+    "Non-negative balance amounts",
+    "Balance consistency: opening (10000.00) = closing (10000.00)",
+    "Valid date format (YYMMDD)",
+    "Proper statement number format (235/1)"
+  ],
+  "business_rules_expected_to_fail": [],
+  "statement_details": {
+    "account": "DE89370400440532013000",
+    "statement_number": "235",
+    "page": "1",
+    "opening_balance": {
+      "indicator": "C (Credit)",
+      "date": "2023-11-14",
+      "currency": "EUR",
+      "amount": "10,000.00"
+    },
+    "closing_balance": {
+      "indicator": "C (Credit)",
+      "date": "2023-11-15",
+      "currency": "EUR",
+      "amount": "10,000.00"
+    },
+    "transactions": []
+  },
+  "notes": "This is the simplest possible MT940 statement. The account had no transactions during the statement period (no field 61 entries), so the opening and closing balances are identical. The 60F indicator (F = Final) means this is the first statement of the day. The account is in credit (C) with a balance of EUR 10,000.00. Deutsche Bank (DEUTDEFF) is sending the statement to a corporate customer."
+}
