@@ -1,0 +1,168 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "MT to MX Field Mapping Schema",
+  "description": "JSON Schema for MT to ISO 20022 MX message field mapping definitions. This schema validates the structure of bidirectional field mappings used by the translation engine.",
+  "type": "object",
+  "required": ["message_pair", "mt_type", "mx_type", "description", "mappings"],
+  "properties": {
+    "message_pair": {
+      "type": "string",
+      "description": "The MT and MX message type pair (e.g., 'MT103/pacs.008.001.10')",
+      "pattern": "^MT\\d{3}/[a-z]+\\.\\d{3}\\.\\d{3}\\.\\d{2}$"
+    },
+    "mt_type": {
+      "type": "string",
+      "description": "The MT message type (e.g., 'MT103')",
+      "pattern": "^MT\\d{3}$"
+    },
+    "mx_type": {
+      "type": "string",
+      "description": "The ISO 20022 MX message type with version (e.g., 'pacs.008.001.10')",
+      "pattern": "^[a-z]+\\.\\d{3}\\.\\d{3}\\.\\d{2}$"
+    },
+    "description": {
+      "type": "string",
+      "description": "Brief description of this message pair and its usage"
+    },
+    "mapping_notes": {
+      "type": "array",
+      "description": "General notes about this mapping that apply to multiple fields",
+      "items": {
+        "type": "string"
+      }
+    },
+    "mappings": {
+      "type": "array",
+      "description": "Array of field-level mapping definitions",
+      "items": {
+        "type": "object",
+        "required": ["mt_tag", "mt_field_name", "mx_path", "transform_type", "direction", "data_loss_risk"],
+        "properties": {
+          "mt_tag": {
+            "type": "string",
+            "description": "The MT field tag (e.g., '20', '32A', '50K')",
+            "pattern": "^\\d{2}[A-Z]?$"
+          },
+          "mt_field_name": {
+            "type": "string",
+            "description": "The descriptive name of the MT field"
+          },
+          "mt_option": {
+            "type": "string",
+            "description": "The option letter for fields with multiple formats (A/B/C/D/F/K). Null if field has no options.",
+            "pattern": "^[A-Z]$"
+          },
+          "mx_path": {
+            "type": "string",
+            "description": "XPath-like path to the MX element (e.g., 'GrpHdr/MsgId', 'CdtTrfTxInf/PmtId/EndToEndId')"
+          },
+          "transform_type": {
+            "type": "string",
+            "enum": ["direct", "split", "merge", "lookup", "derived", "conditional"],
+            "description": "Type of transformation: direct (1:1 copy), split (1 MT field -> multiple MX elements), merge (multiple MT fields -> 1 MX element), lookup (code translation via table), derived (calculated/generated value), conditional (depends on other field values)"
+          },
+          "transform_details": {
+            "type": "string",
+            "description": "Detailed explanation of the transformation logic, especially for split/merge/lookup/derived/conditional types"
+          },
+          "direction": {
+            "type": "string",
+            "enum": ["mt_to_mx", "mx_to_mt", "both"],
+            "description": "Direction of translation: mt_to_mx (MT to MX only), mx_to_mt (MX to MT only), both (bidirectional)"
+          },
+          "data_loss_risk": {
+            "type": "string",
+            "enum": ["none", "possible", "certain"],
+            "description": "Risk of data loss: none (full fidelity), possible (may lose data in some scenarios), certain (data loss expected)"
+          },
+          "truncation_rule": {
+            "type": "string",
+            "description": "Truncation rule when mapping MX to MT (e.g., 'MX allows 140 chars, MT max 35 chars per line over 4 lines')"
+          },
+          "default_value": {
+            "type": "string",
+            "description": "Default value to use when target field is required but source is missing or empty"
+          },
+          "validation_rules": {
+            "type": "array",
+            "description": "Validation rules that apply during transformation",
+            "items": {
+              "type": "string"
+            }
+          },
+          "examples": {
+            "type": "array",
+            "description": "Example transformations showing MT value -> MX value or vice versa",
+            "items": {
+              "type": "object",
+              "required": ["mt_value", "mx_value"],
+              "properties": {
+                "mt_value": {
+                  "type": "string",
+                  "description": "Example MT field value"
+                },
+                "mx_value": {
+                  "type": "string",
+                  "description": "Corresponding MX element value"
+                },
+                "notes": {
+                  "type": "string",
+                  "description": "Notes about this example"
+                }
+              }
+            }
+          },
+          "notes": {
+            "type": "string",
+            "description": "Additional notes about this specific mapping"
+          }
+        }
+      }
+    },
+    "mt_only_fields": {
+      "type": "array",
+      "description": "MT fields that have no MX equivalent and will be lost when translating MT to MX",
+      "items": {
+        "type": "object",
+        "required": ["mt_tag", "mt_field_name", "reason"],
+        "properties": {
+          "mt_tag": {
+            "type": "string",
+            "pattern": "^\\d{2}[A-Z]?$"
+          },
+          "mt_field_name": {
+            "type": "string"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Explanation of why this field has no MX equivalent"
+          }
+        }
+      }
+    },
+    "mx_only_fields": {
+      "type": "array",
+      "description": "MX elements that have no MT equivalent and must be defaulted when translating MX to MT",
+      "items": {
+        "type": "object",
+        "required": ["mx_path", "mx_element_name", "default_strategy"],
+        "properties": {
+          "mx_path": {
+            "type": "string"
+          },
+          "mx_element_name": {
+            "type": "string"
+          },
+          "default_strategy": {
+            "type": "string",
+            "description": "Strategy for providing a value when translating from MT (e.g., 'use constant', 'derive from other fields', 'require user input')"
+          },
+          "reason": {
+            "type": "string",
+            "description": "Explanation of why this field has no MT equivalent"
+          }
+        }
+      }
+    }
+  }
+}
