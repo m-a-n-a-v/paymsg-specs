@@ -296,7 +296,7 @@
         "Each test file has a companion .meta.json describing what the test covers and expected validation result (pass/fail with which rules)"
       ],
       "priority": 18,
-      "passes": false,
+      "passes": true,
       "notes": "Use realistic but fictional bank names and BICs. Never use real customer data."
     },
     {

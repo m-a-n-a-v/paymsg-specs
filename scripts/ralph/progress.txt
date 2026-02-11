@@ -830,3 +830,62 @@ Files changed:
 - References link rules to external standards (ISO 4217, ISO 9362, ISO 13616)
 - Rule ID patterns maintain consistency: MSGTYPE-CATNN format (message type + category + number)
 ---
+
+## 2026-02-10 - SPEC-018
+- Implemented sample MT103 test messages with comprehensive coverage
+- Created 7 MT103 test files (5 valid scenarios + 2 invalid scenarios)
+- Created 7 companion .meta.json files documenting test coverage, business rules, and expected validation results
+- Valid test messages:
+  - minimal_valid.mt: Minimal MT103 with only mandatory fields (20, 23B, 32A, 50K, 59, 71A)
+  - full_valid.mt: Complete MT103 with all optional fields including Block 3 (MUR, UETR), Block 5 (CHK), fields 13C, 23E, 26T, 33B, 36, 51A, 52A, 56A, 57A, 70, 71F, 71G, 72, 77B
+  - sepa_credit.mt: SEPA-compliant EUR payment (DE->FR) with SHA charges, STP flag, UETR tracking
+  - usd_wire.mt: US domestic Fedwire transfer (Bank of America->JPMorgan Chase) with OUR charges
+  - cross_border.mt: Complex cross-border UK->Japan payment with correspondent banking chain (HSBCGB2L->BOFAUS3N->HSBCHKHH->SMBCJPJT)
+- Invalid test messages:
+  - invalid_missing_mandatory.mt: Missing mandatory field 32A to test parser error detection
+  - invalid_bad_bic.mt: Contains invalid BIC code "INVALID123XX" in field 57A to test BIC format validation
+- All messages use realistic but fictional data:
+  - Valid BICs from major banks: DEUTDEFF (Deutsche Bank), BNPAFRPP (BNP Paribas), CHASUS33 (JPMorgan Chase), BOFAUS3N (Bank of America), HSBCGB2L (HSBC UK), SMBCJPJT (Sumitomo Mitsui), HSBCHKHH (HSBC Hong Kong)
+  - Valid IBANs passing Mod-97 validation (DE, FR, GB)
+  - Proper currency decimal handling: EUR/USD with 2 decimal places (1234,56), JPY with 0 decimal places (5000000,)
+  - Fictional customer names, addresses, and references
+- All 7 .meta.json files validated with jq (100% valid JSON)
+- Committed all 14 files with proper message format
+
+Files changed:
+- testdata/mt/mt103/minimal_valid.mt (new)
+- testdata/mt/mt103/minimal_valid.mt.meta.json (new)
+- testdata/mt/mt103/full_valid.mt (new)
+- testdata/mt/mt103/full_valid.mt.meta.json (new)
+- testdata/mt/mt103/sepa_credit.mt (new)
+- testdata/mt/mt103/sepa_credit.mt.meta.json (new)
+- testdata/mt/mt103/usd_wire.mt (new)
+- testdata/mt/mt103/usd_wire.mt.meta.json (new)
+- testdata/mt/mt103/cross_border.mt (new)
+- testdata/mt/mt103/cross_border.mt.meta.json (new)
+- testdata/mt/mt103/invalid_missing_mandatory.mt (new)
+- testdata/mt/mt103/invalid_missing_mandatory.mt.meta.json (new)
+- testdata/mt/mt103/invalid_bad_bic.mt (new)
+- testdata/mt/mt103/invalid_bad_bic.mt.meta.json (new)
+- scripts/ralph/prd.json (updated SPEC-018 passes: true)
+
+**Learnings for future iterations:**
+- MT test messages must use CRLF line endings within Block 4 field content (represented as literal \r\n in the .mt files)
+- Block structure requires precise delimiter formatting: {1:...}{2:...}{3:...}{4:\n...\n-}{5:...} with no spaces
+- Field tags use :NN[a]: format where the optional letter indicates field option (A/B/D/K for party fields)
+- Decimal amounts in MT use comma separator (1234,56) not period - this differs from MX format
+- JPY and other zero-decimal currencies use format like "5000000," (comma but no decimal digits)
+- IBAN examples must pass Mod-97 check digit validation - using valid IBANs is critical for realistic test data
+- BIC examples should use real bank BICs (DEUTDEFF, BNPAFRPP, etc.) for realism but with fictional customer data
+- Block 3 optional tags: 108 (MUR for message user reference), 121 (UETR for gpi tracking in UUID format), 119 (STP flag)
+- Block 5 optional tags: CHK (checksum), TNG (training/test flag)
+- SEPA requirements: EUR currency, SHA charge bearer, IBAN for both parties, SEPA zone BICs
+- Fedwire characteristics: USD currency, OUR charge bearer common, US domestic account numbers (no IBANs), same-day value date
+- Correspondent banking chains demonstrate complex payment routing through multiple intermediary banks (fields 51A, 52A, 53A, 56A, 57A)
+- Test metadata files (.meta.json) should document: test_name, message_type, description, validation_expected (pass/fail), test_coverage array, business_rules_expected_to_pass/fail, and detailed notes
+- Invalid test messages should clearly document which field is invalid and why, plus expected error messages
+- Field 71A charge bearer codes: BEN (beneficiary pays), OUR (ordering customer pays), SHA (shared) - different use cases for each
+- Multi-line fields in Block 4: continuation lines have no tag prefix, just the content on the next line
+- Account lines in party fields (50K, 59) prefixed with / and max 34 characters
+- The .meta.json format is flexible - can include additional structured data like sepa_specific_attributes or correspondent_banking_chain for richer documentation
+---
