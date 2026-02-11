@@ -1,0 +1,221 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "SWIFT Character Sets Schema",
+  "description": "JSON Schema for SWIFT character set definitions (X, Y, Z) and UTF-8 to SWIFT character mappings",
+  "type": "object",
+  "required": ["charset_definitions", "utf8_mappings", "field_charset_usage"],
+  "properties": {
+    "charset_definitions": {
+      "type": "object",
+      "description": "Definitions of SWIFT character sets X, Y, and Z",
+      "required": ["X", "Y", "Z"],
+      "properties": {
+        "X": {
+          "type": "object",
+          "description": "SWIFT X character set (alphanumeric and basic punctuation)",
+          "required": ["name", "description", "characters"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "characters": {
+              "type": "array",
+              "description": "List of valid characters in this set",
+              "items": {
+                "type": "object",
+                "required": ["char", "unicode", "description"],
+                "properties": {
+                  "char": {
+                    "type": "string",
+                    "description": "The character itself"
+                  },
+                  "unicode": {
+                    "type": "string",
+                    "description": "Unicode code point (e.g., U+0041)"
+                  },
+                  "description": {
+                    "type": "string",
+                    "description": "Description or name of the character"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Y": {
+          "type": "object",
+          "description": "SWIFT Y character set (uppercase letters, digits, and special characters)",
+          "required": ["name", "description", "characters"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "characters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["char", "unicode", "description"],
+                "properties": {
+                  "char": {
+                    "type": "string"
+                  },
+                  "unicode": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "Z": {
+          "type": "object",
+          "description": "SWIFT Z character set (extended set including special characters)",
+          "required": ["name", "description", "characters"],
+          "properties": {
+            "name": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "characters": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "required": ["char", "unicode", "description"],
+                "properties": {
+                  "char": {
+                    "type": "string"
+                  },
+                  "unicode": {
+                    "type": "string"
+                  },
+                  "description": {
+                    "type": "string"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "utf8_mappings": {
+      "type": "object",
+      "description": "Mapping tables for converting UTF-8 characters to SWIFT equivalents",
+      "required": ["accented_characters", "special_symbols", "punctuation"],
+      "properties": {
+        "accented_characters": {
+          "type": "array",
+          "description": "Mappings for accented and diacritical characters",
+          "items": {
+            "type": "object",
+            "required": ["utf8_char", "unicode", "swift_replacement", "description"],
+            "properties": {
+              "utf8_char": {
+                "type": "string",
+                "description": "The UTF-8 character"
+              },
+              "unicode": {
+                "type": "string",
+                "description": "Unicode code point"
+              },
+              "swift_replacement": {
+                "type": "string",
+                "description": "SWIFT-compatible replacement character(s)"
+              },
+              "description": {
+                "type": "string",
+                "description": "Description of the character and mapping"
+              }
+            }
+          }
+        },
+        "special_symbols": {
+          "type": "array",
+          "description": "Mappings for special symbols and currency signs",
+          "items": {
+            "type": "object",
+            "required": ["utf8_char", "unicode", "swift_replacement", "description"],
+            "properties": {
+              "utf8_char": {
+                "type": "string"
+              },
+              "unicode": {
+                "type": "string"
+              },
+              "swift_replacement": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "punctuation": {
+          "type": "array",
+          "description": "Mappings for punctuation and quotation marks",
+          "items": {
+            "type": "object",
+            "required": ["utf8_char", "unicode", "swift_replacement", "description"],
+            "properties": {
+              "utf8_char": {
+                "type": "string"
+              },
+              "unicode": {
+                "type": "string"
+              },
+              "swift_replacement": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      }
+    },
+    "field_charset_usage": {
+      "type": "array",
+      "description": "Documentation of which character set applies to which MT message fields",
+      "items": {
+        "type": "object",
+        "required": ["message_type", "field_tag", "field_name", "charset", "notes"],
+        "properties": {
+          "message_type": {
+            "type": "string",
+            "description": "MT message type (e.g., MT103, MT202, MT940)"
+          },
+          "field_tag": {
+            "type": "string",
+            "description": "Field tag (e.g., 20, 32A, 50K)"
+          },
+          "field_name": {
+            "type": "string",
+            "description": "Field name"
+          },
+          "charset": {
+            "type": "string",
+            "enum": ["X", "Y", "Z"],
+            "description": "SWIFT character set that applies to this field"
+          },
+          "notes": {
+            "type": "string",
+            "description": "Additional notes about character set usage for this field"
+          }
+        }
+      }
+    }
+  }
+}
